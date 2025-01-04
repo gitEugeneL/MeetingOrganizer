@@ -13,6 +13,11 @@ public class Category {
         this.color = color;
     }
 
+    @Override
+    public String toString() {
+        return this.name + " | " + this.color;
+    }
+
     public int getId() {
         return id;
     }
@@ -29,8 +34,13 @@ public class Category {
         this.name = name;
     }
 
-    public Color getColor() {
-        return color;
+    public String getColor() {
+        return switch (color) {
+            case RED -> "#FF0000";
+            case YELLOW -> "#FFFF00";
+            case GREEN -> "#00FF00";
+            case BLUE -> "#0000FF";
+        };
     }
 
     public void setColor(Color color) {

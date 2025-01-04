@@ -1,0 +1,105 @@
+.body {
+    -fx-background-color: #18181E;
+}
+
+.button {
+    -fx-cursor: hand;
+    -fx-font-size: 16px;
+    -fx-padding: 15 25 15 25;
+    -fx-text-fill: white;
+    -fx-background-color: #6533C0;
+}
+
+.button:hover {
+    -fx-background-color: #42217DFF;
+}
+
+.mainLabel {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+}
+
+.text-field {
+    -fx-cursor: hand;
+    -fx-background-color: #2B2A3AFF;
+    -fx-font-size: 14px;
+    -fx-padding: 15 25 15 25;
+    -fx-pref-height: 50px;
+    -fx-text-fill: white;
+}
+
+.combo-box {
+    -fx-cursor: hand;
+    -fx-pref-height: 50px;
+    -fx-background-color: #2B2A3AFF;
+    -fx-font-size: 14px;
+}
+
+.combo-box .text {
+    -fx-fill: white;
+}
+
+.combo-box:hover, .combo-box:focused {
+    -fx-background-color: #42217DFF;
+}
+
+.combo-box-popup {
+    -fx-background-color: #29292F;
+    -fx-border-color: none;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #29292F;
+    -fx-text-fill: white;
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: #29292F;
+    -fx-text-fill: white;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: #42217DFF;
+    -fx-text-fill: white;
+}
+
+.text-field:hover,
+.text-field:focused {
+    -fx-background-color: #42217DFF;
+}
+
+.inputLabel {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+.list {
+    -fx-cursor: hand;
+    -fx-background-color: #29292F;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-font-size: 16px;
+    -fx-text-fill: white;
+}
+
+.list .cell {
+    -fx-background-color: #29292F;
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-text-fill: white;
+    -fx-padding: 5px;
+}
+
+.list .cell:hover {
+    -fx-background-color: #42217DFF;
+}
+
+.list .cell:focused {
+    -fx-background-color: #42217DFF;
+    -fx-text-fill: white;
+}
+
+.responseLabel {
+    -fx-font-size: 18px;
+    -fx-text-fill: white;
+}

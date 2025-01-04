@@ -1,5 +1,7 @@
 package com.euglihon.meetingorganizer.model;
 
+import java.util.List;
+
 public class Contact {
     private int id;
     private String firstName;
@@ -7,12 +9,19 @@ public class Contact {
     private String phone;
     private int categoryId;
 
+    public Contact() {}
+
     public Contact(int id, String firstName, String lastName, String phone, int categoryId) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
         this.categoryId = categoryId;
+    }
+
+    @Override
+    public String toString() {
+        return this.firstName + " | " + this.lastName + " | " + this.phone;
     }
 
     public int getId() {
@@ -53,5 +62,12 @@ public class Contact {
 
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Category getCategory(List<Category> categories) {
+        return categories.stream()
+                .filter(category -> category.getId() == this.categoryId)
+                .findFirst()
+                .orElse(null);
     }
 }

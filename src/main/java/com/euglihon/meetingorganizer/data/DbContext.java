@@ -7,19 +7,23 @@ public class DbContext {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     private Connection connection;
 
-    public void getConnection() throws SQLException {
+    public void getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
                 connection = DriverManager.getConnection("jdbc:sqlite:organizer.db");
             }
-        } catch (SQLException exception) {
-            logger.info(exception.toString());
+        } catch (SQLException e) {
+            logger.info(e.toString());
         }
     }
 
-    public void closeConnection() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
+    public void closeConnection() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            logger.info(e.toString());
         }
     }
 
