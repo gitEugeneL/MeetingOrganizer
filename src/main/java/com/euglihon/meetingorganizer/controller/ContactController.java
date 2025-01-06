@@ -22,16 +22,20 @@ public class ContactController {
     }
 
     private List<Category> categories;
+    private List<Contact> contacts;
 
     @FXML private ListView<Contact> contactListView;
     @FXML private ComboBox<Category> categoryComboBox;
+    @FXML private ComboBox<Category> categoryItemComboBox;
     @FXML private TextField firstNameTextField, lastNameTextField, phoneTextField;
     @FXML private HBox buttonGroupField;
     @FXML private Label responseLabel;
 
     @FXML private void initialize() {
         this.loadCategories();
-        this.refreshContactList();
+        this.loadAllContacts();
+        this.refreshContactList(this.contacts);
+        this.setupCategoryItemComboBox();
         this.setupCategoryComboBox();
         this.createButton("Create");
     }
@@ -44,6 +48,21 @@ public class ContactController {
         }
     }
 
+    @FXML private void filterContacts() {
+        Category selectedCategory = this.categoryComboBox.getSelectionModel().getSelectedItem();
+        if (selectedCategory == null) {
+            return;
+        }
+        this.loadAllContactsByCategoryId(selectedCategory.getId());
+        this.refreshContactList(this.contacts);
+    }
+
+    @FXML private void clearFilterContacts() {
+        this.loadAllContacts();
+        this.categoryComboBox.setValue(null);
+        this.refreshContactList(this.contacts);
+    }
+
     @FXML private void addElement() {
         if (!this.validateFields()) return;
         Contact contact = this.createContactFromForm();
@@ -51,7 +70,8 @@ public class ContactController {
             ViewHelpers.CreateResponseMessage(responseLabel, "Contact already exists");
         } else {
             this.resetForm();
-            this.refreshContactList();
+            this.loadAllContacts();
+            this.refreshContactList(this.contacts);
         }
     }
 
@@ -63,14 +83,16 @@ public class ContactController {
             ViewHelpers.CreateResponseMessage(responseLabel, "Error updating contact");
         } else {
             this.resetForm();
-            this.refreshContactList();
+            this.loadAllContacts();
+            this.refreshContactList(this.contacts);
         }
     }
 
     @FXML private void deleteElement() {
         int contactId = contactListView.getSelectionModel().getSelectedItem().getId();
         contactService.deleteContactById(contactId);
-        this.refreshContactList();
+        this.loadAllContacts();
+        this.refreshContactList(this.contacts);
         this.exitEditing();
     }
 
@@ -79,19 +101,33 @@ public class ContactController {
         this.updateViewForAdd();
     }
 
+    private void loadAllContacts() {
+        this.contacts = this.contactService.getAllContacts();
+    }
+
+    private void loadAllContactsByCategoryId(int categoryId) {
+        this.contacts = this.contactService.getAllContactsByCategoryId(categoryId);
+    }
+
     private void loadCategories() {
         this.categories = this.categoryService.getAllCategories();
     }
 
+    private void setupCategoryItemComboBox() {
+        this.categoryItemComboBox.getItems().setAll(this.categories);
+        this.categoryItemComboBox.setValue(this.categoryItemComboBox.getItems().get(0));
+        this.categoryItemComboBox.setCellFactory(comboBox -> ViewHelpers.CategoryWithColorComboBox());
+        this.categoryItemComboBox.setButtonCell(ViewHelpers.CategoryWithColorComboBox());
+    }
+
     private void setupCategoryComboBox() {
         this.categoryComboBox.getItems().setAll(this.categories);
-        this.categoryComboBox.setValue(this.categoryComboBox.getItems().get(0));
         this.categoryComboBox.setCellFactory(comboBox -> ViewHelpers.CategoryWithColorComboBox());
         this.categoryComboBox.setButtonCell(ViewHelpers.CategoryWithColorComboBox());
     }
 
-    private void refreshContactList() {
-        this.contactListView.getItems().setAll(this.contactService.getAllContacts());
+    private void refreshContactList(List<Contact> contacts) {
+        this.contactListView.getItems().setAll(contacts);
         this.contactListView.setCellFactory(lv -> ViewHelpers.ContactWithCategoryContactList(categories));
     }
 
@@ -136,7 +172,7 @@ public class ContactController {
         contact.setFirstName(this.firstNameTextField.getText().trim());
         contact.setLastName(this.lastNameTextField.getText().trim());
         contact.setPhone(this.phoneTextField.getText().trim());
-        contact.setCategoryId(this.categoryComboBox.getValue().getId());
+        contact.setCategoryId(this.categoryItemComboBox.getValue().getId());
         return contact;
     }
 
@@ -144,7 +180,7 @@ public class ContactController {
         this.firstNameTextField.setText(contact.getFirstName());
         this.lastNameTextField.setText(contact.getLastName());
         this.phoneTextField.setText(contact.getPhone());
-        this.categoryComboBox.setValue(contact.getCategory(this.categories));
+        this.categoryItemComboBox.setValue(contact.getCategory(this.categories));
     }
 
     private void resetForm() {

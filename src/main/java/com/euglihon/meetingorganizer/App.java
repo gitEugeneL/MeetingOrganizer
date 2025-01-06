@@ -57,7 +57,7 @@ public class App extends Application {
 
         // Set up the root layout and scene
         root = new BorderPane();
-        Scene scene = new Scene(root, 800, 750);
+        Scene scene = new Scene(root, 800, 800);
 
         // Add css styles
         scene.getStylesheets().add(App.class.getResource("css/main.css").toExternalForm());
@@ -68,7 +68,7 @@ public class App extends Application {
         root.setTop(menuBar);
 
         // Show the initial home page
-        showHomePage();
+        showContactPage();
 
         // Set the stage properties and show it
         stage.setTitle("Organizer Application");

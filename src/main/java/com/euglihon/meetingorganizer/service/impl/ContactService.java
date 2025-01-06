@@ -19,6 +19,11 @@ public class ContactService implements IContactService {
     }
 
     @Override
+    public List<Contact> getAllContactsByCategoryId(int categoryId) {
+        return this.contactRepository.findAllByCategoryId(categoryId);
+    }
+
+    @Override
     public boolean addContact(Contact contact) {
         if (this.contactRepository.findByPhone(contact.getPhone()) != null) {
             return false;

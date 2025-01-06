@@ -8,6 +8,8 @@ public interface IContactService {
 
     List<Contact> getAllContacts();
 
+    List<Contact> getAllContactsByCategoryId(int categoryId);
+
     boolean addContact(Contact contact);
 
     boolean updateContact(Contact contact);
