@@ -1,4 +1,5 @@
 package com.euglihon.meetingorganizer.controller;
+
 import com.euglihon.meetingorganizer.helpers.ViewHelpers;
 import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.Contact;
@@ -8,7 +9,7 @@ import com.euglihon.meetingorganizer.validation.UIDataValidation;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import java.awt.event.ActionEvent;
+
 import java.util.List;
 
 public class ContactController {
@@ -20,134 +21,146 @@ public class ContactController {
         this.categoryService = categoryService;
     }
 
-    private final String addButton = "Create";
-    private final String editButton = "Edit";
-    private final String deleteButton = "Delete";
-    private final String closeButton = "Exit";
-
     private List<Category> categories;
 
-    @FXML
-    private ListView<Contact> contactListView;
+    @FXML private ListView<Contact> contactListView;
+    @FXML private ComboBox<Category> categoryComboBox;
+    @FXML private TextField firstNameTextField, lastNameTextField, phoneTextField;
+    @FXML private HBox buttonGroupField;
+    @FXML private Label responseLabel;
 
-    @FXML
-    private ComboBox<Category> categoryComboBox;
-
-    @FXML
-    private TextField firstNameTextField;
-
-    @FXML
-    private TextField lastNameTextField;
-
-    @FXML
-    private TextField phoneTextField;
-
-    @FXML
-    private HBox buttonGroupField;
-
-    @FXML
-    private Label responseLabel;
-
-    @FXML
-    private void initialize() {
-        this.getCategories();
-        this.createDynamicButton(addButton);
+    @FXML private void initialize() {
+        this.loadCategories();
         this.refreshContactList();
-        this.refreshCategoryComboBox();
+        this.setupCategoryComboBox();
+        this.createButton("Create");
     }
 
-    @FXML
-    private void addElement() {
-
-        if (!this.validateFields()) {
-            return;
+    @FXML private void contactListForm() {
+        Contact contact = this.contactListView.getSelectionModel().getSelectedItem();
+        if (contact != null) {
+            this.populateForm(contact);
+            this.updateViewForEdit();
         }
+    }
+
+    @FXML private void addElement() {
+        if (!this.validateFields()) return;
+        Contact contact = this.createContactFromForm();
+        if (!contactService.addContact(contact)) {
+            ViewHelpers.CreateResponseMessage(responseLabel, "Contact already exists");
+        } else {
+            this.resetForm();
+            this.refreshContactList();
+        }
+    }
+
+    @FXML private void editElement() {
+        if (!this.validateFields()) return;
+        Contact contact = this.createContactFromForm();
+        contact.setId(contactListView.getSelectionModel().getSelectedItem().getId());
+        if (!contactService.updateContact(contact)) {
+            ViewHelpers.CreateResponseMessage(responseLabel, "Error updating contact");
+        } else {
+            this.resetForm();
+            this.refreshContactList();
+        }
+    }
+
+    @FXML private void deleteElement() {
+        int contactId = contactListView.getSelectionModel().getSelectedItem().getId();
+        contactService.deleteContactById(contactId);
+        this.refreshContactList();
+        this.exitEditing();
+    }
+
+    @FXML private void exitEditing() {
+        this.resetForm();
+        this.updateViewForAdd();
+    }
+
+    private void loadCategories() {
+        this.categories = this.categoryService.getAllCategories();
+    }
+
+    private void setupCategoryComboBox() {
+        this.categoryComboBox.getItems().setAll(this.categories);
+        this.categoryComboBox.setValue(this.categoryComboBox.getItems().get(0));
+        this.categoryComboBox.setCellFactory(comboBox -> ViewHelpers.CategoryWithColorComboBox());
+        this.categoryComboBox.setButtonCell(ViewHelpers.CategoryWithColorComboBox());
+    }
+
+    private void refreshContactList() {
+        this.contactListView.getItems().setAll(this.contactService.getAllContacts());
+        this.contactListView.setCellFactory(lv -> ViewHelpers.ContactWithCategoryContactList(categories));
+    }
+
+    private void createButton(String buttonName) {
+        Button button = new Button(buttonName);
+        button.setOnAction(event -> this.handleButtonAction(buttonName));
+        this.buttonGroupField.getChildren().add(button);
+    }
+
+    private void handleButtonAction(String buttonName) {
+        switch (buttonName) {
+            case "Create": this.addElement(); break;
+            case "Edit": this.editElement(); break;
+            case "Delete": this.deleteElement(); break;
+            case "Exit": this.exitEditing(); break;
+        }
+    }
+
+    private boolean validateFields() {
+        ViewHelpers.ClearResponseMessage(this.responseLabel);
+        boolean isValid = true;
+        if (!UIDataValidation.isNameOrSurname(this.firstNameTextField.getText())) {
+            ViewHelpers.CreateResponseMessage(this.responseLabel, "Invalid first name");
+            ViewHelpers.ChangeTextFieldBorderColor(this.firstNameTextField, false);
+            isValid = false;
+        }
+        if (!UIDataValidation.isNameOrSurname(this.lastNameTextField.getText())) {
+            ViewHelpers.CreateResponseMessage(this.responseLabel, "Invalid last name");
+            ViewHelpers.ChangeTextFieldBorderColor(this.lastNameTextField, false);
+            isValid = false;
+        }
+        if (!UIDataValidation.isValidPhoneNumber(this.phoneTextField.getText())) {
+            ViewHelpers.CreateResponseMessage(this.responseLabel, "Invalid phone number format");
+            ViewHelpers.ChangeTextFieldBorderColor(this.phoneTextField, false);
+            isValid = false;
+        }
+        return isValid;
+    }
+
+    private Contact createContactFromForm() {
         Contact contact = new Contact();
         contact.setFirstName(this.firstNameTextField.getText().trim());
         contact.setLastName(this.lastNameTextField.getText().trim());
         contact.setPhone(this.phoneTextField.getText().trim());
-        Category selectedCategory = this.categoryComboBox.getValue();
-        contact.setCategoryId(selectedCategory.getId());
-
-        boolean result = this.contactService.addContact(contact);
-        if (!result) {
-            this.responseLabel.setText("Contact " + contact.getPhone() + " already exists");
-        } else {
-            this.refreshContactList();
-            this.clearInputFields();
-        }
+        contact.setCategoryId(this.categoryComboBox.getValue().getId());
+        return contact;
     }
 
-    @FXML
-    private void editElement(ActionEvent event) {
-        // todo
+    private void populateForm(Contact contact) {
+        this.firstNameTextField.setText(contact.getFirstName());
+        this.lastNameTextField.setText(contact.getLastName());
+        this.phoneTextField.setText(contact.getPhone());
+        this.categoryComboBox.setValue(contact.getCategory(this.categories));
     }
 
-    @FXML
-    private void deleteElement(ActionEvent event) {
-        // todo
+    private void resetForm() {
+        ViewHelpers.ClearInputFields(this.firstNameTextField, this.lastNameTextField, this.phoneTextField);
+        ViewHelpers.ClearResponseMessage(this.responseLabel);
     }
 
-
-    private void getCategories() {
-        this.categories = this.categoryService.getAllCategories();
+    private void updateViewForEdit() {
+        this.buttonGroupField.getChildren().clear();
+        this.createButton("Exit");
+        this.createButton("Edit");
+        this.createButton("Delete");
     }
 
-    private void refreshContactList() {
-        contactListView.getItems().clear();
-        contactListView.getItems().addAll(contactService.getAllContacts());
-        // Custom list
-        contactListView.setCellFactory(lv -> ViewHelpers.UpdateContactList(this.categories));
-    }
-
-    private void refreshCategoryComboBox() {
-        categoryComboBox.getItems().addAll(categories);
-        // Set default category
-        Category defaultCategory = this.categoryComboBox.getItems().getFirst();
-        this.categoryComboBox.setValue(defaultCategory);
-        // Custom comboBox
-        categoryComboBox.setCellFactory(comboBox -> ViewHelpers.UpdateCategoryComboBox());
-        categoryComboBox.setButtonCell(ViewHelpers.UpdateCategoryComboBox());
-    }
-
-    private void createDynamicButton(String buttonName) {
-        Button button = new Button(buttonName);
-        switch (buttonName) {
-            case addButton:
-                button.setOnAction(event -> addElement());
-                break;
-            default:
-                return;
-        }
-        this.buttonGroupField.getChildren().add(button);
-    }
-
-    private boolean validateFields() {
-        this.responseLabel.setText("");
-
-        boolean isFirstNameValid = UIDataValidation.isNameOrSurname(this.firstNameTextField.getText());
-        boolean isLastNameValid = UIDataValidation.isNameOrSurname(this.lastNameTextField.getText());
-        boolean isPhoneValid = UIDataValidation.isValidPhoneNumber(this.phoneTextField.getText());
-
-        if (!isFirstNameValid)
-            this.responseLabel.setText("First name is invalid");
-        if (!isLastNameValid)
-            this.responseLabel.setText("Last name is invalid");
-        if (!isPhoneValid)
-            this.responseLabel.setText("Phone number is invalid. Valid format: +48-000-000-000");
-
-        ViewHelpers.changeTextFieldBorderColor(this.firstNameTextField, isFirstNameValid);
-        ViewHelpers.changeTextFieldBorderColor(this.lastNameTextField, isLastNameValid);
-        ViewHelpers.changeTextFieldBorderColor(this.phoneTextField, isPhoneValid);
-
-        return isFirstNameValid && isLastNameValid && isPhoneValid;
-    }
-
-    private void clearInputFields() {
-        this.responseLabel.setText("");
-        this.firstNameTextField.setText("");
-        this.lastNameTextField.setText("");
-        this.phoneTextField.setText("");
-        this.phoneTextField.setText("");
+    private void updateViewForAdd() {
+        this.buttonGroupField.getChildren().clear();
+        this.createButton("Create");
     }
 }

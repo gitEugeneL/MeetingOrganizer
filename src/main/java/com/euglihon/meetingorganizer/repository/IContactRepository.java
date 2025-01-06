@@ -12,5 +12,13 @@ public interface IContactRepository {
 
     void insert(Contact contact);
 
-    Contact findContactByPhone(String phone);
+    void update(Contact contact);
+
+    Contact findByPhone(String phone);
+
+    boolean isPhoneExist(Contact contact);
+
+    Contact findById(int contactId);
+
+    void deleteById(int contactId);
 }

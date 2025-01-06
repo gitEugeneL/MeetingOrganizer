@@ -20,10 +20,27 @@ public class ContactService implements IContactService {
 
     @Override
     public boolean addContact(Contact contact) {
-        if (contactRepository.findContactByPhone(contact.getPhone()) != null) {
+        if (this.contactRepository.findByPhone(contact.getPhone()) != null) {
             return false;
         }
         this.contactRepository.insert(contact);
         return true;
+    }
+
+    @Override
+    public boolean updateContact(Contact contact) {
+        if (this.contactRepository.findById(contact.getId()) == null) {
+            return false;
+        }
+        if (this.contactRepository.isPhoneExist(contact)) {
+            return false;
+        }
+        this.contactRepository.update(contact);
+        return true;
+    }
+
+    @Override
+    public void deleteContactById(int contactId) {
+        this.contactRepository.deleteById(contactId);
     }
 }

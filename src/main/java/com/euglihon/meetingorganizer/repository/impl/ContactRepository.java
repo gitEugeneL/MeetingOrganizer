@@ -3,7 +3,6 @@ package com.euglihon.meetingorganizer.repository.impl;
 import com.euglihon.meetingorganizer.data.DbContext;
 import com.euglihon.meetingorganizer.model.Contact;
 import com.euglihon.meetingorganizer.repository.IContactRepository;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,7 +43,7 @@ public class ContactRepository implements IContactRepository {
         try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.execute();
         } catch (SQLException ignored) {
-            logger.info("Failed to create Contacts table");
+            logger.severe("Failed to create Contacts table");
         }
     }
 
@@ -60,7 +59,7 @@ public class ContactRepository implements IContactRepository {
                 contacts.add(this.mapToContact(resultSet));
             }
         } catch (SQLException ignored) {
-            logger.info("Failed to find all Contacts");
+            logger.severe("Failed to find all Contacts");
         }
         return contacts;
     }
@@ -76,32 +75,92 @@ public class ContactRepository implements IContactRepository {
            statement.setInt(4, contact.getCategoryId());
            statement.executeUpdate();
         } catch (SQLException ignored) {
-            logger.info("Failed to insert new Contact");
+            logger.severe("Failed to insert new Contact");
         }
     }
 
     @Override
-    public Contact findContactByPhone(String phone) {
+    public void update(Contact contact) {
+        dbContext.getConnection();
+        String query = """
+                UPDATE Contacts SET
+                    firstName = ?, lastName = ?, phone = ?, categoryId = ?
+                    WHERE id = ?;
+                """;
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setString(1, contact.getFirstName());
+            statement.setString(2, contact.getLastName());
+            statement.setString(3, contact.getPhone());
+            statement.setInt(4, contact.getCategoryId());
+            statement.setInt(5, contact.getId());
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            logger.severe("Failed to update Contact");
+        }
+    }
+
+    @Override
+    public Contact findByPhone(String phone) {
         dbContext.getConnection();
         String query = "SELECT id, firstName, lastName, phone, categoryId FROM Contacts WHERE phone = ?;";
         Contact contact = null;
         try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setString(1, phone);
             ResultSet resultSet = statement.executeQuery();
-
             if (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String firstName = resultSet.getString("firstName");
-                String lastName = resultSet.getString("lastName");
-                String phoneNumber = resultSet.getString("phone");
-                int categoryId = resultSet.getInt("categoryId");
-
-                contact = new Contact(id, firstName, lastName, phoneNumber, categoryId);
+                contact = this.mapToContact(resultSet);
             }
         } catch (SQLException e) {
-            logger.info("Failed to find Contact by Phone");
+            logger.severe("Failed to find Contact by Phone");
         }
         return contact;
     }
 
+    @Override
+    public boolean isPhoneExist(Contact contact) {
+        dbContext.getConnection();
+        boolean exists = false;
+        String query = "SELECT id FROM Contacts WHERE phone = ? AND id != ?;";
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setString(1, contact.getPhone());
+            statement.setInt(2, contact.getId());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                exists = true;
+            }
+        } catch (SQLException e) {
+            logger.severe("Failed to find Contact by Phone");
+        }
+        return exists;
+    }
+
+    @Override
+    public Contact findById(int contactId) {
+        dbContext.getConnection();
+        String query = "SELECT id, firstName, lastName, phone, categoryId FROM Contacts WHERE id = ?;";
+        Contact contact = null;
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, contactId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                contact = this.mapToContact(resultSet);
+            }
+
+        } catch (SQLException e) {
+            logger.severe("Failed to find Contact by Id");
+        }
+        return contact;
+    }
+
+    @Override
+    public void deleteById(int contactId) {
+        dbContext.getConnection();
+        String query = "DELETE FROM Contacts WHERE id = ?;";
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, contactId);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            logger.severe("Failed to delete Contact by Id");
+        }
+    }
 }

@@ -12,7 +12,7 @@ import java.util.List;
 
 public final class ViewHelpers {
 
-    public static void changeTextFieldBorderColor(TextField textField, boolean valid) {
+    public static void ChangeTextFieldBorderColor(TextField textField, boolean valid) {
         if (valid) {
             textField.setStyle("-fx-border-color: none");
         } else {
@@ -20,7 +20,7 @@ public final class ViewHelpers {
         }
     }
 
-    public static ListCell<Category> UpdateCategoryComboBox() {
+    public static ListCell<Category> CategoryWithColorComboBox() {
         return new ListCell<>() {
             @Override
             protected void updateItem(Category category, boolean empty) {
@@ -38,7 +38,7 @@ public final class ViewHelpers {
         };
     }
 
-    public static ListCell<Contact> UpdateContactList(List<Category> categories) {
+    public static ListCell<Contact> ContactWithCategoryContactList(List<Category> categories) {
         return new ListCell<>() {
             @Override
             protected void updateItem(Contact contact, boolean empty) {
@@ -59,5 +59,21 @@ public final class ViewHelpers {
                 }
             }
         };
+    }
+
+    public static void ClearInputFields(TextField... fields) {
+        String style = "-fx-border-color: none";
+        for (TextField field : fields) {
+            field.setText("");
+            field.setStyle(style);
+        }
+    }
+
+    public static void ClearResponseMessage(Label label) {
+            label.setText("");
+    }
+
+    public static void CreateResponseMessage(Label label, String message) {
+        label.setText(message);
     }
 }

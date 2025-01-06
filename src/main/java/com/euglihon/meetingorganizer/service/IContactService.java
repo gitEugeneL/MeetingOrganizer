@@ -9,4 +9,8 @@ public interface IContactService {
     List<Contact> getAllContacts();
 
     boolean addContact(Contact contact);
+
+    boolean updateContact(Contact contact);
+
+    void deleteContactById(int contactId);
 }
