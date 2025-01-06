@@ -10,6 +10,8 @@ public interface IContactRepository {
 
     List<Contact> findAll();
 
+    List<Contact> findAllByCategoryId(int categoryId);
+
     void insert(Contact contact);
 
     void update(Contact contact);

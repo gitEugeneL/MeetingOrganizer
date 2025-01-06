@@ -65,6 +65,24 @@ public class ContactRepository implements IContactRepository {
     }
 
     @Override
+    public List<Contact> findAllByCategoryId(int categoryId) {
+        dbContext.getConnection();
+        String query = "SELECT id, firstName, lastName, phone, categoryId FROM Contacts WHERE categoryId = ?;";
+        List<Contact> contacts = new ArrayList<>();
+
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, categoryId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                contacts.add(this.mapToContact(resultSet));
+            }
+        } catch (SQLException ignored) {
+            logger.severe("Failed to find all Contacts by Category Id");
+        }
+        return contacts;
+    }
+
+    @Override
     public void insert(Contact contact) {
         dbContext.getConnection();
         String query = "INSERT INTO Contacts (firstName, lastName, phone, categoryId) values (?, ?, ?, ?);";
