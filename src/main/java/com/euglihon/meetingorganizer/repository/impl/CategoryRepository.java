@@ -4,7 +4,6 @@ import com.euglihon.meetingorganizer.data.DbContext;
 import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.enums.Color;
 import com.euglihon.meetingorganizer.repository.ICategoryRepository;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -41,18 +40,33 @@ public final class CategoryRepository implements ICategoryRepository {
         try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.execute();
         } catch (SQLException ignored) {
-            logger.info("Failed to create Categories table");
+            logger.severe("Failed to create Categories table");
         }
     }
 
     @Override
     public void insert(Category category) {
-        // todo
+        dbContext.getConnection();
+        String query = "INSERT INTO Categories (name, color) VALUES (?, ?)";
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setString(1, category.getName());
+            statement.setString(2, category.getColor().toString());
+            statement.executeUpdate();
+        } catch (SQLException ignored) {
+            logger.severe("Failed to insert Category");
+        }
     }
 
     @Override
     public void deleteById(int categoryId) {
-        // todo
+        dbContext.getConnection();
+        String query = "DELETE FROM Categories WHERE id = ?";
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, categoryId);
+            statement.executeUpdate();
+        } catch (SQLException ignored) {
+            logger.severe("Failed to delete Category");
+        }
     }
 
     @Override
@@ -67,8 +81,25 @@ public final class CategoryRepository implements ICategoryRepository {
                 categories.add(this.mapToCategory(resultSet));
             }
         } catch (SQLException ignored) {
-            logger.info("Failed to find all Categories");
+            logger.severe("Failed to find all Categories");
         }
         return categories;
+    }
+
+    @Override
+    public Category findByName(String name) {
+        dbContext.getConnection();
+        String query = "SELECT id, name, color FROM Categories WHERE name = ?";
+        Category category = null;
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setString(1, name);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                category = this.mapToCategory(resultSet);
+            }
+        } catch (SQLException ignored) {
+            logger.severe("Failed to find Category by name");
+        }
+        return category;
     }
 }
