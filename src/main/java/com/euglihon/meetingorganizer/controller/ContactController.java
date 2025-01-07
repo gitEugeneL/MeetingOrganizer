@@ -5,7 +5,7 @@ import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.Contact;
 import com.euglihon.meetingorganizer.service.ICategoryService;
 import com.euglihon.meetingorganizer.service.IContactService;
-import com.euglihon.meetingorganizer.validation.UIDataValidation;
+import com.euglihon.meetingorganizer.validation.ContactValidation;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -32,7 +32,7 @@ public class ContactController {
     @FXML private Label responseLabel;
 
     @FXML private void initialize() {
-        this.loadCategories();
+        this.loadAllCategories();
         this.loadAllContacts();
         this.refreshContactList(this.contacts);
         this.setupCategoryItemComboBox();
@@ -41,6 +41,7 @@ public class ContactController {
     }
 
     @FXML private void contactListForm() {
+        this.resetForm();
         Contact contact = this.contactListView.getSelectionModel().getSelectedItem();
         if (contact != null) {
             this.populateForm(contact);
@@ -59,12 +60,14 @@ public class ContactController {
 
     @FXML private void clearFilterContacts() {
         this.loadAllContacts();
-        this.categoryComboBox.setValue(null);
+        this.categoryComboBox.getSelectionModel().clearSelection();
         this.refreshContactList(this.contacts);
     }
 
     @FXML private void addElement() {
-        if (!this.validateFields()) return;
+        if (this.validateForm()) {
+            return;
+        }
         Contact contact = this.createContactFromForm();
         if (!contactService.addContact(contact)) {
             ViewHelpers.CreateResponseMessage(responseLabel, "Contact already exists");
@@ -76,7 +79,9 @@ public class ContactController {
     }
 
     @FXML private void editElement() {
-        if (!this.validateFields()) return;
+        if (this.validateForm()){
+            return;
+        }
         Contact contact = this.createContactFromForm();
         contact.setId(contactListView.getSelectionModel().getSelectedItem().getId());
         if (!contactService.updateContact(contact)) {
@@ -109,7 +114,7 @@ public class ContactController {
         this.contacts = this.contactService.getAllContactsByCategoryId(categoryId);
     }
 
-    private void loadCategories() {
+    private void loadAllCategories() {
         this.categories = this.categoryService.getAllCategories();
     }
 
@@ -146,27 +151,6 @@ public class ContactController {
         }
     }
 
-    private boolean validateFields() {
-        ViewHelpers.ClearResponseMessage(this.responseLabel);
-        boolean isValid = true;
-        if (!UIDataValidation.isNameOrSurname(this.firstNameTextField.getText())) {
-            ViewHelpers.CreateResponseMessage(this.responseLabel, "Invalid first name");
-            ViewHelpers.ChangeTextFieldBorderColor(this.firstNameTextField, false);
-            isValid = false;
-        }
-        if (!UIDataValidation.isNameOrSurname(this.lastNameTextField.getText())) {
-            ViewHelpers.CreateResponseMessage(this.responseLabel, "Invalid last name");
-            ViewHelpers.ChangeTextFieldBorderColor(this.lastNameTextField, false);
-            isValid = false;
-        }
-        if (!UIDataValidation.isValidPhoneNumber(this.phoneTextField.getText())) {
-            ViewHelpers.CreateResponseMessage(this.responseLabel, "Invalid phone number format");
-            ViewHelpers.ChangeTextFieldBorderColor(this.phoneTextField, false);
-            isValid = false;
-        }
-        return isValid;
-    }
-
     private Contact createContactFromForm() {
         Contact contact = new Contact();
         contact.setFirstName(this.firstNameTextField.getText().trim());
@@ -186,6 +170,15 @@ public class ContactController {
     private void resetForm() {
         ViewHelpers.ClearInputFields(this.firstNameTextField, this.lastNameTextField, this.phoneTextField);
         ViewHelpers.ClearResponseMessage(this.responseLabel);
+    }
+
+    private boolean validateForm() {
+        return !ContactValidation.validateFields(
+                this.firstNameTextField,
+                this.lastNameTextField,
+                this.phoneTextField,
+                this.responseLabel
+        );
     }
 
     private void updateViewForEdit() {

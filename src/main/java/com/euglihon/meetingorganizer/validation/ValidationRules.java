@@ -3,7 +3,7 @@ package com.euglihon.meetingorganizer.validation;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class UIDataValidation {
+public class ValidationRules {
 
     public static boolean isNameOrSurname(String str) {
         int strLength = str.length();
