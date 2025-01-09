@@ -85,7 +85,7 @@ public class ContactRepository implements IContactRepository {
     @Override
     public void insert(Contact contact) {
         dbContext.getConnection();
-        String query = "INSERT INTO Contacts (firstName, lastName, phone, categoryId) values (?, ?, ?, ?);";
+        String query = "INSERT INTO Contacts (firstName, lastName, phone, categoryId) VALUES (?, ?, ?, ?);";
         try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
            statement.setString(1, contact.getFirstName());
            statement.setString(2, contact.getLastName());

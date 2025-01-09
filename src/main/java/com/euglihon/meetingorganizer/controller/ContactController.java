@@ -69,7 +69,7 @@ public class ContactController {
             return;
         }
         Contact contact = this.createContactFromForm();
-        if (!contactService.addContact(contact)) {
+        if (!this.contactService.addContact(contact)) {
             ViewHelpers.CreateResponseMessage(responseLabel, "Contact already exists");
         } else {
             this.resetForm();
@@ -120,7 +120,9 @@ public class ContactController {
 
     private void setupCategoryItemComboBox() {
         this.categoryItemComboBox.getItems().setAll(this.categories);
-        this.categoryItemComboBox.setValue(this.categoryItemComboBox.getItems().get(0));
+        if (!this.categories.isEmpty()) {
+            this.categoryItemComboBox.setValue(this.categoryItemComboBox.getItems().get(0));
+        }
         this.categoryItemComboBox.setCellFactory(comboBox -> ViewHelpers.CategoryWithColorComboBox());
         this.categoryItemComboBox.setButtonCell(ViewHelpers.CategoryWithColorComboBox());
     }
@@ -177,6 +179,7 @@ public class ContactController {
                 this.firstNameTextField,
                 this.lastNameTextField,
                 this.phoneTextField,
+                this.categoryItemComboBox,
                 this.responseLabel
         );
     }
