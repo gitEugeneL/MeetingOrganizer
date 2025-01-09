@@ -7,6 +7,8 @@ public class Category {
     private String name;
     private Color color;
 
+    public Category() {}
+
     public Category(int id, String name, Color color) {
         this.id = id;
         this.name = name;
@@ -34,7 +36,11 @@ public class Category {
         this.name = name;
     }
 
-    public String getColor() {
+    public Color getColor() {
+        return color;
+    }
+
+    public String getColorCode() {
         return switch (color) {
             case RED -> "#FF0000";
             case YELLOW -> "#FFFF00";

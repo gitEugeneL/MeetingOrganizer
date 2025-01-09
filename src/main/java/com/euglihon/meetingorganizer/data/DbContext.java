@@ -20,10 +20,24 @@ public class DbContext {
             if (connection == null || connection.isClosed()) {
                 // Establish a new connection to the SQLite database
                 connection = DriverManager.getConnection("jdbc:sqlite:organizer.db");
+                // Enable foreign keys support
+                this.enableForeignKeys(connection);
             }
         } catch (SQLException e) {
             // Log the exception details if connection fails
             logger.severe("Failed to establish database connection: " + e.toString());
+        }
+    }
+
+    /**
+     * Enables foreign keys in the SQLite database connection.
+     *
+     * @param connection The SQLite database connection.
+     * @throws SQLException If an error occurs while executing the PRAGMA statement.
+     */
+    private void enableForeignKeys(Connection connection) throws SQLException {
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("PRAGMA foreign_keys = ON");
         }
     }
 

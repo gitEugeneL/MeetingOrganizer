@@ -1,5 +1,6 @@
 package com.euglihon.meetingorganizer;
 
+import com.euglihon.meetingorganizer.controller.CategoryController;
 import com.euglihon.meetingorganizer.controller.ContactController;
 import com.euglihon.meetingorganizer.controller.HomeController;
 import com.euglihon.meetingorganizer.data.DbContext;
@@ -56,7 +57,7 @@ public class App extends Application {
         dbInitialization.init();
 
         // Set up the root layout and scene
-        root = new BorderPane();
+        this.root = new BorderPane();
         Scene scene = new Scene(root, 800, 800);
 
         // Add css styles
@@ -65,10 +66,10 @@ public class App extends Application {
 
         // Create and add the menu bar to the top of the layout
         MenuBar menuBar = createMenuBar();
-        root.setTop(menuBar);
+        this.root.setTop(menuBar);
 
         // Show the initial home page
-        showContactPage();
+        this.showContactPage();
 
         // Set the stage properties and show it
         stage.setTitle("Organizer Application");
@@ -83,7 +84,6 @@ public class App extends Application {
      */
     private MenuBar createMenuBar() {
         Menu menu = new Menu("Menu");
-
         // Home menu item with action to show the home page
         MenuItem homeMenuItem = new MenuItem("Home");
         homeMenuItem.setOnAction(actionEvent -> {
@@ -104,8 +104,18 @@ public class App extends Application {
             }
         });
 
+        // Category menu item with action to show the contact page
+        MenuItem categoryMenuItem = new MenuItem("Category");
+        categoryMenuItem.setOnAction(actionEvent -> {
+            try {
+                showCategoryPage();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         // Add menu items to the menu and return the menu bar
-        menu.getItems().addAll(homeMenuItem, contactsMenuItem);
+        menu.getItems().addAll(homeMenuItem, contactsMenuItem, categoryMenuItem);
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().add(menu);
         return menuBar;
@@ -120,7 +130,7 @@ public class App extends Application {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("home-view.fxml"));
         HomeController homeController = new HomeController();
         loader.setController(homeController);
-        root.setCenter(loader.load());
+        this.root.setCenter(loader.load());
     }
 
     /**
@@ -132,7 +142,19 @@ public class App extends Application {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("contact-view.fxml"));
         ContactController contactController = new ContactController(this.contactService, this.categoryService);
         loader.setController(contactController);
-        root.setCenter(loader.load());
+        this.root.setCenter(loader.load());
+    }
+
+    /**
+     * Loads and displays the category page.
+     *
+     * @throws IOException if an I/O error occurs while loading the FXML file
+     */
+    private void showCategoryPage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("category-view.fxml"));
+        CategoryController categoryController = new CategoryController(this.categoryService);
+        loader.setController(categoryController);
+        this.root.setCenter(loader.load());
     }
 
     /**

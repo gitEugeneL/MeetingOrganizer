@@ -14,7 +14,21 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
+    public boolean addCategory(Category category) {
+        if (this.categoryRepository.findByName(category.getName()) != null) {
+            return false;
+        }
+        this.categoryRepository.insert(category);
+        return true;
+    }
+
+    @Override
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
+    }
+
+    @Override
+    public void deleteCategoryById(int id) {
+        this.categoryRepository.deleteById(id);
     }
 }

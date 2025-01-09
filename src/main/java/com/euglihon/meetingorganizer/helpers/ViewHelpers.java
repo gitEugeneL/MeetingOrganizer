@@ -2,9 +2,8 @@ package com.euglihon.meetingorganizer.helpers;
 
 import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.Contact;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.TextField;
+import com.euglihon.meetingorganizer.model.enums.Color;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Circle;
 
@@ -12,12 +11,23 @@ import java.util.List;
 
 public final class ViewHelpers {
 
-    public static void ChangeTextFieldBorderColor(TextField textField, boolean valid) {
+    public static void changeInputBorder(Control field, boolean valid) {
         if (valid) {
-            textField.setStyle("-fx-border-color: none");
+            field.setStyle("-fx-border-color: none");
         } else {
-            textField.setStyle("-fx-border-color: red");
+            field.setStyle("-fx-border-color: red");
         }
+    }
+
+    private static void setEmpty(ListCell<?> cell) {
+        cell.setText(null);
+        cell.setGraphic(null);
+    }
+
+    private static Circle createColorCircle(String colorCode, double radius) {
+        Circle circle = new Circle(radius);
+        circle.setStyle("-fx-fill: " + colorCode + ";");
+        return circle;
     }
 
     public static ListCell<Category> CategoryWithColorComboBox() {
@@ -26,11 +36,9 @@ public final class ViewHelpers {
             protected void updateItem(Category category, boolean empty) {
                 super.updateItem(category, empty);
                 if (empty || category == null) {
-                    setText(null);
-                    setGraphic(null);
+                    setEmpty(this);
                 } else {
-                    Circle circle = new Circle(8);
-                    circle.setStyle("-fx-fill: " + category.getColor() + ";");
+                    Circle circle = createColorCircle(category.getColorCode(), 8);
                     setText(category.getName());
                     setGraphic(circle);
                 }
@@ -44,18 +52,32 @@ public final class ViewHelpers {
             protected void updateItem(Contact contact, boolean empty) {
                 super.updateItem(contact, empty);
                 if (empty || contact == null) {
-                    setText(null);
-                    setGraphic(null);
+                    setEmpty(this);
                 } else {
                     Category category = contact.getCategory(categories);
-
-                    Circle circle = new Circle(8);
-                    circle.setStyle("-fx-fill: " + category.getColor() + ";");
-                    Label contactLabel = new Label(contact.getFirstName()
-                            + " | " + contact.getLastName() + " | " + contact.getPhone());
+                    Circle circle = createColorCircle(category.getColorCode(), 8);
+                    Label contactLabel = new Label(contact.getFirstName() + " | " + contact.getLastName() + " | " + contact.getPhone());
                     contactLabel.setStyle("-fx-text-fill: white;");
                     HBox hBox = new HBox(10, circle, contactLabel);
                     setGraphic(hBox);
+                }
+            }
+        };
+    }
+
+    public static ListCell<Color> ColorNameWithColorCircle() {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(Color color, boolean empty) {
+                super.updateItem(color, empty);
+                if (empty || color == null) {
+                    setEmpty(this);
+                } else {
+                    Category category = new Category();
+                    category.setColor(color);
+                    Circle colorCircle = createColorCircle(category.getColorCode(), 10);
+                    setGraphic(colorCircle);
+                    setText(color.toString());
                 }
             }
         };
