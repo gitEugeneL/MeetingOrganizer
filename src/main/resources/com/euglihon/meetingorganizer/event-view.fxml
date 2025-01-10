@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.DatePicker?>
+
+<VBox styleClass="body" alignment="CENTER" spacing="20.0"
+      xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/11.0.2">
+
+    <Label styleClass="mainLabel" text="Event list" />
+
+    <HBox alignment="CENTER" spacing="30.0">
+        <ComboBox fx:id="categoryComboBox" prefHeight="40.0" minWidth="200.0" />
+
+        <Button text="Filter" onAction="#filterEvents" />
+        <Button text="Clear filter" onAction="#clearFilterEvents" />
+
+        <VBox.margin>
+            <Insets bottom="30.0" />
+        </VBox.margin>
+    </HBox>
+
+    <HBox alignment="CENTER" spacing="30.0">
+        <VBox spacing="30.0">
+            <ListView styleClass="list"
+                      fx:id="eventListView"
+                      onMouseClicked="#eventListForm"
+                      prefHeight="460.0"
+                      prefWidth="350.0" />
+
+            <HBox alignment="CENTER" spacing="30.0">
+                <Button text="Delete" onAction="#deleteEvent"/>
+                <Button text="Create" onAction="#createAddContainer" />
+            </HBox>
+        </VBox>
+
+        <VBox spacing="30.0" fx:id="participantsContainer" managed="false" visible="false">
+            <ListView styleClass="list" fx:id="participantsListView" prefHeight="350.0" prefWidth="350.0" />
+        </VBox>
+
+        <VBox fx:id="addContainer" alignment="CENTER" managed="false" visible="false">
+            <Label styleClass="inputLabel" text="Title" />
+            <TextField fx:id="titleTextField" promptText="Enter event title" prefHeight="40.0" minWidth="300.0">
+                <VBox.margin>
+                    <Insets bottom="20.0" top="10.0" />
+                </VBox.margin>
+            </TextField>
+
+            <Label styleClass="inputLabel" text="Date" />
+            <DatePicker fx:id="datePicker" promptText="Enter event date" prefHeight="40.0" minWidth="300.0">
+                <VBox.margin>
+                    <Insets bottom="20.0" top="10.0" />
+                </VBox.margin>
+            </DatePicker>
+
+            <Label styleClass="inputLabel" text="Category" />
+            <ComboBox fx:id="categoryItemComboBox" prefHeight="40.0" minWidth="300.0" promptText="Select a category">
+                <VBox.margin>
+                    <Insets bottom="20.0" top="10.0" />
+                </VBox.margin>
+            </ComboBox>
+
+            <HBox alignment="CENTER" spacing="30.0">
+                <Button text="Exit" onAction="#exitAddContainer" />
+                <Button text="Add" onAction="#addEvent" />
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <Label fx:id="responseLabel" styleClass="responseLabel" />
+</VBox>

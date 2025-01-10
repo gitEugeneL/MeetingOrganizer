@@ -26,10 +26,9 @@ public class CategoryController {
 
     @FXML private void initialize() {
         this.loadAllCategories();
-        this.refreshCategoryList(categories);
+        this.refreshCategoryList(this.categories);
         this.setupColorComboBox();
     }
-
 
     @FXML private void deleteCategory() {
         Category category = categoryListView.getSelectionModel().getSelectedItem();
@@ -38,7 +37,7 @@ public class CategoryController {
         }
         this.categoryService.deleteCategoryById(category.getId());
         this.loadAllCategories();
-        this.refreshCategoryList(categories);
+        this.refreshCategoryList(this.categories);
     }
 
     @FXML private void addCategory() {
@@ -47,11 +46,11 @@ public class CategoryController {
         }
         Category category = this.createCategoryFromForm();
         if (!this.categoryService.addCategory(category)) {
-            ViewHelpers.CreateResponseMessage(responseLabel, "Category already exists");
+            ViewHelpers.CreateResponseMessage(this.responseLabel, "Category already exists");
         } else {
             this.resetForm();
             this.loadAllCategories();
-            this.refreshCategoryList(categories);
+            this.refreshCategoryList(this.categories);
         }
     }
 

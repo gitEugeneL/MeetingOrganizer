@@ -15,11 +15,7 @@
     <Label styleClass="mainLabel" text="Contact list" />
 
     <HBox alignment="CENTER" spacing="30.0">
-        <ComboBox fx:id="categoryComboBox" prefHeight="40.0" minWidth="200.0">
-            <VBox.margin>
-                <Insets bottom="20.0" top="10.0" />
-            </VBox.margin>
-        </ComboBox>
+        <ComboBox fx:id="categoryComboBox" prefHeight="40.0" minWidth="200.0" />
 
         <Button text="Filter" onAction="#filterContacts" />
         <Button text="Clear filter" onAction="#clearFilterContacts" />

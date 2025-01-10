@@ -37,7 +37,7 @@ public class ContactRepository implements IContactRepository {
                     firstName VARCHAR(255) NOT NULL,
                     lastName VARCHAR(255) NOT NULL,
                     phone Varchar(15) NOT NULL UNIQUE,
-                    categoryId INTEGER,
+                    categoryId INTEGER NOT NULL,
                     FOREIGN KEY(categoryId) REFERENCES Categories(id) ON DELETE CASCADE ON UPDATE CASCADE);
                 """;
         try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {

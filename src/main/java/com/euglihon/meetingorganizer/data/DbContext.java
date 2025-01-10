@@ -19,7 +19,7 @@ public class DbContext {
         try {
             if (connection == null || connection.isClosed()) {
                 // Establish a new connection to the SQLite database
-                connection = DriverManager.getConnection("jdbc:sqlite:organizer.db");
+                connection = DriverManager.getConnection("jdbc:sqlite:database.db");
                 // Enable foreign keys support
                 this.enableForeignKeys(connection);
             }

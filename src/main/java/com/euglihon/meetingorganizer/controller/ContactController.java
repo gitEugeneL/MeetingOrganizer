@@ -1,5 +1,6 @@
 package com.euglihon.meetingorganizer.controller;
 
+import com.euglihon.meetingorganizer.controller.common.Base;
 import com.euglihon.meetingorganizer.helpers.ViewHelpers;
 import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.Contact;
@@ -35,8 +36,8 @@ public class ContactController {
         this.loadAllCategories();
         this.loadAllContacts();
         this.refreshContactList(this.contacts);
-        this.setupCategoryItemComboBox();
-        this.setupCategoryComboBox();
+        Base.setupCategoryItemComboBox(this.categories, this.categoryItemComboBox);
+        Base.setupCategoryComboBox(this.categories, this.categoryComboBox);
         this.createButton("Create");
     }
 
@@ -118,24 +119,9 @@ public class ContactController {
         this.categories = this.categoryService.getAllCategories();
     }
 
-    private void setupCategoryItemComboBox() {
-        this.categoryItemComboBox.getItems().setAll(this.categories);
-        if (!this.categories.isEmpty()) {
-            this.categoryItemComboBox.setValue(this.categoryItemComboBox.getItems().get(0));
-        }
-        this.categoryItemComboBox.setCellFactory(comboBox -> ViewHelpers.CategoryWithColorComboBox());
-        this.categoryItemComboBox.setButtonCell(ViewHelpers.CategoryWithColorComboBox());
-    }
-
-    private void setupCategoryComboBox() {
-        this.categoryComboBox.getItems().setAll(this.categories);
-        this.categoryComboBox.setCellFactory(comboBox -> ViewHelpers.CategoryWithColorComboBox());
-        this.categoryComboBox.setButtonCell(ViewHelpers.CategoryWithColorComboBox());
-    }
-
     private void refreshContactList(List<Contact> contacts) {
         this.contactListView.getItems().setAll(contacts);
-        this.contactListView.setCellFactory(lv -> ViewHelpers.ContactWithCategoryContactList(categories));
+        this.contactListView.setCellFactory(lv -> ViewHelpers.ContactWithCategoryContactList(this.categories));
     }
 
     private void createButton(String buttonName) {
