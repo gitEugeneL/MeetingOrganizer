@@ -2,17 +2,21 @@ package com.euglihon.meetingorganizer;
 
 import com.euglihon.meetingorganizer.controller.CategoryController;
 import com.euglihon.meetingorganizer.controller.ContactController;
-import com.euglihon.meetingorganizer.controller.HomeController;
+import com.euglihon.meetingorganizer.controller.EventController;
 import com.euglihon.meetingorganizer.data.DbContext;
 import com.euglihon.meetingorganizer.data.DbInitialization;
 import com.euglihon.meetingorganizer.repository.IContactRepository;
+import com.euglihon.meetingorganizer.repository.IEventRepository;
 import com.euglihon.meetingorganizer.repository.impl.CategoryRepository;
 import com.euglihon.meetingorganizer.repository.ICategoryRepository;
 import com.euglihon.meetingorganizer.repository.impl.ContactRepository;
+import com.euglihon.meetingorganizer.repository.impl.EventRepository;
 import com.euglihon.meetingorganizer.service.IContactService;
+import com.euglihon.meetingorganizer.service.IEventService;
 import com.euglihon.meetingorganizer.service.impl.CategoryService;
 import com.euglihon.meetingorganizer.service.ICategoryService;
 import com.euglihon.meetingorganizer.service.impl.ContactService;
+import com.euglihon.meetingorganizer.service.impl.EventService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -38,10 +42,12 @@ public class App extends Application {
     // Repositories
     ICategoryRepository categoryRepository = new CategoryRepository(dbContext);
     IContactRepository contactRepository = new ContactRepository(dbContext);
+    IEventRepository eventRepository = new EventRepository(dbContext);
 
     // Services
     ICategoryService categoryService = new CategoryService(categoryRepository);
     IContactService contactService = new ContactService(contactRepository);
+    IEventService eventService = new EventService(eventRepository);
 
     /**
      * Starts the application.
@@ -53,12 +59,12 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
 
         // Initialize the database
-        DbInitialization dbInitialization = new DbInitialization(categoryRepository, contactRepository);
+        DbInitialization dbInitialization = new DbInitialization(categoryRepository, contactRepository, eventRepository);
         dbInitialization.init();
 
         // Set up the root layout and scene
         this.root = new BorderPane();
-        Scene scene = new Scene(root, 800, 800);
+        Scene scene = new Scene(root, 800, 950);
 
         // Add css styles
         scene.getStylesheets().add(App.class.getResource("css/main.css").toExternalForm());
@@ -69,7 +75,7 @@ public class App extends Application {
         this.root.setTop(menuBar);
 
         // Show the initial home page
-        this.showContactPage();
+        this.showEventPage();
 
         // Set the stage properties and show it
         stage.setTitle("Organizer Application");
@@ -83,12 +89,14 @@ public class App extends Application {
      * @return the created MenuBar
      */
     private MenuBar createMenuBar() {
+
         Menu menu = new Menu("Menu");
-        // Home menu item with action to show the home page
-        MenuItem homeMenuItem = new MenuItem("Home");
+
+        // Events menu item with action to show the home page
+        MenuItem homeMenuItem = new MenuItem("Events");
         homeMenuItem.setOnAction(actionEvent -> {
             try {
-                showHomePage();
+                showEventPage();
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
@@ -117,7 +125,7 @@ public class App extends Application {
         // Add menu items to the menu and return the menu bar
         menu.getItems().addAll(homeMenuItem, contactsMenuItem, categoryMenuItem);
         MenuBar menuBar = new MenuBar();
-        menuBar.getMenus().add(menu);
+        menuBar.getMenus().addAll(menu);
         return menuBar;
     }
 
@@ -126,10 +134,10 @@ public class App extends Application {
      *
      * @throws IOException if an I/O error occurs while loading the FXML file
      */
-    private void showHomePage() throws IOException {
-        FXMLLoader loader = new FXMLLoader(App.class.getResource("home-view.fxml"));
-        HomeController homeController = new HomeController();
-        loader.setController(homeController);
+    private void showEventPage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("event-view.fxml"));
+        EventController eventController = new EventController(eventService, categoryService);
+        loader.setController(eventController);
         this.root.setCenter(loader.load());
     }
 

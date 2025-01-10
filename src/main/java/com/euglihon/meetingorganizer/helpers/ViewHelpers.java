@@ -2,6 +2,7 @@ package com.euglihon.meetingorganizer.helpers;
 
 import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.Contact;
+import com.euglihon.meetingorganizer.model.Event;
 import com.euglihon.meetingorganizer.model.enums.Color;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -59,6 +60,25 @@ public final class ViewHelpers {
                     Label contactLabel = new Label(contact.getFirstName() + " | " + contact.getLastName() + " | " + contact.getPhone());
                     contactLabel.setStyle("-fx-text-fill: white;");
                     HBox hBox = new HBox(10, circle, contactLabel);
+                    setGraphic(hBox);
+                }
+            }
+        };
+    }
+
+    public static ListCell<Event> EventWithCategoryContactList(List<Category> categories) {
+        return new ListCell<>() {
+            @Override
+            protected void updateItem(Event event, boolean empty) {
+                super.updateItem(event, empty);
+                if (empty || event == null) {
+                    setEmpty(this);
+                } else {
+                    Category category = event.getCategory(categories);
+                    Circle circle = createColorCircle(category.getColorCode(), 8);
+                    Label eventLabel = new Label(event.getTitle() + " | " + event.getDate().toString());
+                    eventLabel.setStyle("-fx-text-fill: white;");
+                    HBox hBox = new HBox(10, circle, eventLabel);
                     setGraphic(hBox);
                 }
             }
