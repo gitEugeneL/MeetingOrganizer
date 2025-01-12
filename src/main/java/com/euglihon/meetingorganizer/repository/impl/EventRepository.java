@@ -61,6 +61,18 @@ public class EventRepository implements IEventRepository {
         }
     }
 
+    public void addContact(int eventId, int contactId) {
+        dbContext.getConnection();
+        String query = "INSERT INTO Events_Contacts (eventId, contactId) VALUES (?, ?);";
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, eventId);
+            statement.setInt(2, contactId);
+            statement.executeUpdate();
+        } catch (SQLException ignored) {
+            logger.severe("Failed to add Contact to Event");
+        }
+    }
+
     @Override
     public List<Event> findAll(Integer id) {
         dbContext.getConnection();
@@ -122,10 +134,10 @@ public class EventRepository implements IEventRepository {
                     event.setCategoryId(categoryId);
                 }
                 if (contactId > 0) {
-                    Contact contact = new Contact(contactId, contactFirstName, contactLastName, contactPhone, contactCategoryId);
+                    Contact contact = new Contact(
+                            contactId, contactFirstName, contactLastName, contactPhone, contactCategoryId);
                     event.getParticipants().add(contact);
                 }
-
                 eventMap.put(eventId, event);
             }
             events = new ArrayList<>(eventMap.values());

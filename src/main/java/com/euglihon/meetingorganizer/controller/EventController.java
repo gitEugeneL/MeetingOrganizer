@@ -1,10 +1,13 @@
 package com.euglihon.meetingorganizer.controller;
 
-import com.euglihon.meetingorganizer.controller.common.Base;
+import com.euglihon.meetingorganizer.helpers.ComboBoxHelpers;
+import com.euglihon.meetingorganizer.helpers.ListCellHelpers;
 import com.euglihon.meetingorganizer.helpers.ViewHelpers;
 import com.euglihon.meetingorganizer.model.Category;
+import com.euglihon.meetingorganizer.model.Contact;
 import com.euglihon.meetingorganizer.model.Event;
 import com.euglihon.meetingorganizer.service.ICategoryService;
+import com.euglihon.meetingorganizer.service.IContactService;
 import com.euglihon.meetingorganizer.service.IEventService;
 import com.euglihon.meetingorganizer.validation.EventValidation;
 import javafx.fxml.FXML;
@@ -16,66 +19,105 @@ public class EventController {
 
     private final IEventService eventService;
     private final ICategoryService categoryService;
-    public EventController(IEventService eventService, ICategoryService categoryService) {
+    private final IContactService contactService;
+    public EventController(IEventService eventService, ICategoryService categoryService, IContactService contactService) {
         this.eventService = eventService;
         this.categoryService = categoryService;
+        this.contactService = contactService;
     }
+
+    private List<Contact> eventContacts;
+    private List<Contact> contactsToAdd;
 
     private List<Category> categories;
     private List<Event> events;
 
-    @FXML private ListView<Event> eventListView;
-    @FXML private ComboBox<Category> categoryComboBox;
-    @FXML private ComboBox<Category> categoryItemComboBox;
-    @FXML private VBox addContainer, participantsContainer;
-    @FXML private TextField titleTextField;
-    @FXML private DatePicker datePicker;
-    @FXML private Label responseLabel;
+    @FXML
+    private ListView<Event> eventListView;
+    @FXML
+    private ListView<Contact> eventContactListView;
+    @FXML
+    private ComboBox<Category> categoryComboBox;
+    @FXML
+    private ComboBox<Category> categoryItemComboBox;
+    @FXML
+    private ComboBox<Contact> participantsComboBox;
+    @FXML
+    private VBox addContainer, participantsContainer;
+    @FXML
+    private TextField titleTextField;
+    @FXML
+    private DatePicker datePicker;
+    @FXML
+    private Label responseLabel;
 
-    @FXML private void initialize() {
+    @FXML
+    private void initialize() {
         this.loadAllCategories();
         this.loadAllEvents();
         this.refreshEventList(this.events);
-        Base.setupCategoryItemComboBox(this.categories, this.categoryComboBox);
-        Base.setupCategoryComboBox(this.categories, this.categoryItemComboBox);
+        ComboBoxHelpers.setupCategoryItemComboBox(this.categories, this.categoryComboBox);
+        ComboBoxHelpers.setupCategoryComboBox(this.categories, this.categoryItemComboBox);
         this.clearFilterEvents();
     }
 
-    @FXML private void eventListForm() {
-        this.exitAddContainer();
-        this.participantsContainer.setManaged(true);
-        this.participantsContainer.setVisible(true);
+    @FXML
+    private void eventListForm() {
+        this.createParticipantsContainer();
     }
 
-    @FXML private void filterEvents() {
+    @FXML
+    private void filterEvents() {
         Category selectedCategory = this.categoryComboBox.getSelectionModel().getSelectedItem();
         if (selectedCategory == null) {
             return;
         }
+        this.exitAddContainer();
+        this.exitParticipantsContainer();
         this.loadAllEventsByCategoryId(selectedCategory.getId());
         this.refreshEventList(this.events);
     }
 
-    @FXML private void clearFilterEvents() {
+    @FXML
+    private void clearFilterEvents() {
         this.loadAllEvents();
         this.categoryComboBox.getSelectionModel().clearSelection();
         this.refreshEventList(this.events);
     }
 
-    @FXML private void createAddContainer() {
-        this.participantsContainer.setManaged(false);
-        this.participantsContainer.setVisible(false);
-        this.addContainer.setManaged(true);
-        this.addContainer.setVisible(true);
+    @FXML
+    private void createAddContainer() {
+        ViewHelpers.disableContainer(this.participantsContainer);
+        ViewHelpers.showContainer(this.addContainer);
     }
 
-    @FXML private void exitAddContainer() {
-        this.addContainer.setManaged(false);
-        this.addContainer.setVisible(false);
+    private void createParticipantsContainer() {
+        Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
+        if (selectedEvent == null) {
+            return;
+        }
+        this.exitAddContainer();
+        ViewHelpers.showContainer(this.participantsContainer);
+        this.loadEventContacts(selectedEvent.getId());
+        this.loadContactsToAdd(selectedEvent.getId(), selectedEvent.getCategoryId());
+        ComboBoxHelpers.setupParticipantsComboBox(this.contactsToAdd, this.categories, this.participantsComboBox);
+        this.refreshParticipantList(this.eventContacts);
     }
 
-    @FXML private void addEvent() {
-        if (this.validateForm()) {
+    @FXML
+    private void exitAddContainer() {
+        ViewHelpers.disableContainer(this.addContainer);
+    }
+
+    @FXML
+    private void exitParticipantsContainer() {
+        ViewHelpers.disableContainer(this.participantsContainer);
+    }
+
+    @FXML
+    private void addEvent() {
+        if (!EventValidation.validateForm(this.titleTextField, this.datePicker,
+                this.categoryItemComboBox, this.responseLabel)) {
             return;
         }
         Event event = this.createEventFromForm();
@@ -85,11 +127,30 @@ public class EventController {
         this.refreshEventList(this.events);
     }
 
-    @FXML private void deleteEvent() {
-        int eventId = this.eventListView.getSelectionModel().getSelectedItem().getId();
-        eventService.deleteEventById(eventId);
+    @FXML
+    private void deleteEvent() {
+        Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
+        if (selectedEvent == null) {
+            return;
+        }
+        eventService.deleteEventById(selectedEvent.getId());
+        this.exitParticipantsContainer();
         this.loadAllEvents();
         this.refreshEventList(this.events);
+    }
+
+    @FXML
+    private void addNewParticipant() {
+        Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
+        Contact contact = this.participantsComboBox.getSelectionModel().getSelectedItem();
+        if (contact == null || selectedEvent == null) {
+            return;
+        }
+        this.eventService.addContactToEvent(selectedEvent.getId(), contact.getId());
+        this.loadEventContacts(selectedEvent.getId());
+        this.loadContactsToAdd(selectedEvent.getId(), contact.getId());
+        ComboBoxHelpers.setupParticipantsComboBox(this.contactsToAdd, this.categories, this.participantsComboBox);
+        this.refreshParticipantList(this.eventContacts);
     }
 
     private void loadAllCategories() {
@@ -104,9 +165,22 @@ public class EventController {
         this.events = this.eventService.getAllByCategoryId(categoryId);
     }
 
+    private void loadEventContacts(int eventId) {
+        this.eventContacts = this.contactService.getAllContactsByEventId(eventId);
+    }
+
+    private void loadContactsToAdd(int eventId, int categoryId) {
+        this.contactsToAdd = this.contactService.getAvailableContactsToAddToEvent(eventId, categoryId);
+    }
+
     private void refreshEventList(List<Event> events) {
         this.eventListView.getItems().setAll(events);
-        this.eventListView.setCellFactory(lv -> ViewHelpers.EventWithCategoryContactList(this.categories));
+        this.eventListView.setCellFactory(lv -> ListCellHelpers.eventWithCategoryContactList(this.categories));
+    }
+
+    private void refreshParticipantList(List<Contact> participants) {
+        this.eventContactListView.getItems().setAll(participants);
+        this.eventContactListView.setCellFactory(lv -> ListCellHelpers.contactWithCategoryContactList(this.categories));
     }
 
     private Event createEventFromForm() {
@@ -118,16 +192,8 @@ public class EventController {
     }
 
     private void resetForm() {
-        ViewHelpers.ClearInputFields(this.titleTextField);
-        ViewHelpers.ClearResponseMessage(this.responseLabel);
+        ViewHelpers.clearInputFields(this.titleTextField);
+        ViewHelpers.clearResponseMessage(this.responseLabel);
         this.exitAddContainer();
-    }
-
-    private boolean validateForm() {
-        return !EventValidation.validateFields(
-                this.titleTextField,
-                this.datePicker,
-                this.categoryItemComboBox,
-                this.responseLabel);
     }
 }

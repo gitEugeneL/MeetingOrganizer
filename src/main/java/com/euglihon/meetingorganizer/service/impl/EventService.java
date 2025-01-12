@@ -19,6 +19,11 @@ public class EventService implements IEventService {
     }
 
     @Override
+    public void addContactToEvent(int eventId, int contactId) {
+        this.eventRepository.addContact(eventId, contactId);
+    }
+
+    @Override
     public List<Event> getAllEvents() {
         return this.eventRepository.findAll(null);
     }
