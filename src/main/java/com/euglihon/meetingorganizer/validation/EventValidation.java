@@ -16,16 +16,23 @@ public class EventValidation {
 
         boolean isTitleValid = ValidationRules.isTitle(title.getText());
         boolean isDateValid = ValidationRules.isValidDate(date);
-        boolean isCategoryValid = ValidationRules.isValidComboBox(category);
+        boolean isCategoryValid = true;
 
         ViewHelpers.validateField(title, isTitleValid, "Invalid title", response);
         ViewHelpers.validateField(date,isDateValid, "Invalid date", response);
-        ViewHelpers.validateField(category, isCategoryValid, "Invalid category", response);
 
+        if (category != null) {
+            isCategoryValid = ValidationRules.isValidComboBox(category);
+            ViewHelpers.validateField(category, isCategoryValid, "Invalid category", response);
+        }
         return isTitleValid && isDateValid && isCategoryValid;
     }
 
     public static boolean validateForm(TextField title, DatePicker date, ComboBox<Category> categoryItem, Label response) {
         return validateFields(title, date, categoryItem, response);
+    }
+
+    public static boolean validateForm(TextField title, DatePicker date, Label response) {
+        return validateFields(title, date, null, response);
     }
 }

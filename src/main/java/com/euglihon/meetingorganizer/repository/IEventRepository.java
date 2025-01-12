@@ -10,7 +10,13 @@ public interface IEventRepository {
 
     void insert(Event event);
 
+    void update(Event event);
+
     void addContact(int eventId, int contactId);
+
+    void removeContact(int eventId, int contactId);
+
+    boolean isEventExist(Event event);
 
     List<Event> findAll(Integer eventId);
 

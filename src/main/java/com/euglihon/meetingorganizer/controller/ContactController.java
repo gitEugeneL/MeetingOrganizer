@@ -55,13 +55,13 @@ public class ContactController {
     @FXML
     private void contactListForm() {
         this.resetForm();
-        Contact contact = this.contactListView.getSelectionModel().getSelectedItem();
-
-        if (contact != null) {
-            this.contactAssociatedWithEvent(contact.getId());
-            this.populateForm(contact);
-            this.toggleEditingMode(true);
+        Contact selectedContact = this.contactListView.getSelectionModel().getSelectedItem();
+        if (selectedContact == null) {
+            return;
         }
+        this.contactAssociatedWithEvent(selectedContact.getId());
+        this.populateForm(selectedContact);
+        this.toggleEditingMode(true);
     }
 
     @FXML

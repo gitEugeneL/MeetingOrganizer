@@ -8,7 +8,11 @@ public interface IEventService {
 
     void addEvent(Event event);
 
+    boolean updateEvent(Event event);
+
     void addContactToEvent(int eventId, int contactId);
+
+    void removeContactFromEvent(int eventId, int contactId);
 
     List<Event> getAllEvents();
 

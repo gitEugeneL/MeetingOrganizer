@@ -19,8 +19,22 @@ public class EventService implements IEventService {
     }
 
     @Override
+    public boolean updateEvent(Event event) {
+        if (!this.eventRepository.isEventExist(event)) {
+            return false;
+        }
+        this.eventRepository.update(event);
+        return true;
+    }
+
+    @Override
     public void addContactToEvent(int eventId, int contactId) {
         this.eventRepository.addContact(eventId, contactId);
+    }
+
+    @Override
+    public void removeContactFromEvent(int eventId, int contactId) {
+        this.eventRepository.removeContact(eventId, contactId);
     }
 
     @Override

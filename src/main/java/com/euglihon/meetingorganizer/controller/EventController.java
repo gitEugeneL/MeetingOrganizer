@@ -12,7 +12,9 @@ import com.euglihon.meetingorganizer.service.IEventService;
 import com.euglihon.meetingorganizer.validation.EventValidation;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+
 import java.util.List;
 
 public class EventController {
@@ -43,11 +45,13 @@ public class EventController {
     @FXML
     private ComboBox<Contact> participantsComboBox;
     @FXML
-    private VBox addContainer, participantsContainer;
+    private VBox addContainer, participantsContainer, editContainer;
     @FXML
-    private TextField titleTextField;
+    private HBox excludeParticipantContainer;
     @FXML
-    private DatePicker datePicker;
+    private TextField titleTextField, updateTitle;
+    @FXML
+    private DatePicker datePicker, updateDatePicker;
     @FXML
     private Label responseLabel;
 
@@ -64,6 +68,14 @@ public class EventController {
     @FXML
     private void eventListForm() {
         this.createParticipantsContainer();
+    }
+
+    @FXML void participantListForm() {
+        Contact selectedEventContact = this.eventContactListView.getSelectionModel().getSelectedItem();
+        if (selectedEventContact == null) {
+            return;
+        }
+        ViewHelpers.showContainer(this.excludeParticipantContainer);
     }
 
     @FXML
@@ -88,7 +100,15 @@ public class EventController {
     @FXML
     private void createAddContainer() {
         ViewHelpers.disableContainer(this.participantsContainer);
+        ViewHelpers.disableContainer(this.editContainer);
         ViewHelpers.showContainer(this.addContainer);
+    }
+
+    @FXML
+    private void createEditContainer() {
+        ViewHelpers.disableContainer(this.participantsContainer);
+        ViewHelpers.disableContainer(this.addContainer);
+        ViewHelpers.showContainer(this.editContainer);
     }
 
     private void createParticipantsContainer() {
@@ -97,11 +117,25 @@ public class EventController {
             return;
         }
         this.exitAddContainer();
+        this.exitEditContainer();
         ViewHelpers.showContainer(this.participantsContainer);
         this.loadEventContacts(selectedEvent.getId());
         this.loadContactsToAdd(selectedEvent.getId(), selectedEvent.getCategoryId());
         ComboBoxHelpers.setupParticipantsComboBox(this.contactsToAdd, this.categories, this.participantsComboBox);
         this.refreshParticipantList(this.eventContacts);
+    }
+
+    @FXML
+    private void createEditEventContainer() {
+        Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
+        if (selectedEvent == null) {
+            return;
+        }
+        this.exitAddContainer();
+        this.exitParticipantsContainer();
+        ViewHelpers.showContainer(this.editContainer);
+        this.updateTitle.setText(selectedEvent.getTitle());
+        this.updateDatePicker.setValue(selectedEvent.getDate());
     }
 
     @FXML
@@ -115,6 +149,12 @@ public class EventController {
     }
 
     @FXML
+    private void exitEditContainer() {
+        ViewHelpers.disableContainer(this.editContainer);
+        ViewHelpers.disableContainer(this.excludeParticipantContainer);
+    }
+
+    @FXML
     private void addEvent() {
         if (!EventValidation.validateForm(this.titleTextField, this.datePicker,
                 this.categoryItemComboBox, this.responseLabel)) {
@@ -125,6 +165,29 @@ public class EventController {
         this.resetForm();
         this.loadAllEvents();
         this.refreshEventList(this.events);
+        this.clearFilterEvents();
+    }
+
+    @FXML
+    private void updateEvent() {
+        if (!EventValidation.validateForm(this.updateTitle, this.updateDatePicker, this.responseLabel)) {
+            return;
+        }
+        Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
+        if (selectedEvent == null) {
+            return;
+        }
+        selectedEvent.setTitle(this.updateTitle.getText());
+        selectedEvent.setDate(this.updateDatePicker.getValue());
+
+        if (!this.eventService.updateEvent(selectedEvent)) {
+            ViewHelpers.createResponseMessage(this.responseLabel, "Event not updated");
+        } else {
+            this.resetForm();
+            this.loadAllEvents();
+            this.refreshEventList(this.events);
+            this.clearFilterEvents();
+        }
     }
 
     @FXML
@@ -147,8 +210,23 @@ public class EventController {
             return;
         }
         this.eventService.addContactToEvent(selectedEvent.getId(), contact.getId());
-        this.loadEventContacts(selectedEvent.getId());
-        this.loadContactsToAdd(selectedEvent.getId(), contact.getId());
+        updateParticipantList(selectedEvent, contact);
+    }
+
+    @FXML
+    private void excludeParticipant() {
+        Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
+        Contact contact = this.eventContactListView.getSelectionModel().getSelectedItem();
+        if (contact == null || selectedEvent == null) {
+            return;
+        }
+        this.eventService.removeContactFromEvent(selectedEvent.getId(), contact.getId());
+        updateParticipantList(selectedEvent, contact);
+    }
+
+    private void updateParticipantList(Event event, Contact contact) {
+        this.loadEventContacts(event.getId());
+        this.loadContactsToAdd(event.getId(), contact.getCategoryId());
         ComboBoxHelpers.setupParticipantsComboBox(this.contactsToAdd, this.categories, this.participantsComboBox);
         this.refreshParticipantList(this.eventContacts);
     }
@@ -192,8 +270,10 @@ public class EventController {
     }
 
     private void resetForm() {
+        ViewHelpers.clearInputFields(this.updateTitle);
         ViewHelpers.clearInputFields(this.titleTextField);
         ViewHelpers.clearResponseMessage(this.responseLabel);
         this.exitAddContainer();
+        this.exitEditContainer();
     }
 }

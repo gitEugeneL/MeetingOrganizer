@@ -61,6 +61,21 @@ public class EventRepository implements IEventRepository {
         }
     }
 
+    @Override
+    public void update(Event event) {
+        dbContext.getConnection();
+        String query = "UPDATE Events SET title = ?, date = ? WHERE id = ?;";
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setString(1, event.getTitle());
+            statement.setString(2, event.getDate().toString());
+            statement.setInt(3, event.getId());
+            statement.executeUpdate();
+        } catch (SQLException ignored) {
+            logger.severe("Failed to update Event");
+        }
+    }
+
+    @Override
     public void addContact(int eventId, int contactId) {
         dbContext.getConnection();
         String query = "INSERT INTO Events_Contacts (eventId, contactId) VALUES (?, ?);";
@@ -71,6 +86,36 @@ public class EventRepository implements IEventRepository {
         } catch (SQLException ignored) {
             logger.severe("Failed to add Contact to Event");
         }
+    }
+
+    @Override
+    public void removeContact(int eventId, int contactId) {
+        dbContext.getConnection();
+        String query = "DELETE FROM Events_Contacts WHERE eventId = ? AND contactId = ?;";
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, eventId);
+            statement.setInt(2, contactId);
+            statement.executeUpdate();
+        } catch (SQLException ignored) {
+            logger.severe("Failed to remove Contact from Event");
+        }
+    }
+
+    @Override
+    public boolean isEventExist(Event event) {
+        dbContext.getConnection();
+        boolean exists = false;
+        String query = "SELECT id FROM Events WHERE id = ?;";
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, event.getId());
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                exists = true;
+            }
+        } catch (SQLException ignored) {
+            logger.severe("Failed to check if Event exists");
+        }
+        return exists;
     }
 
     @Override
