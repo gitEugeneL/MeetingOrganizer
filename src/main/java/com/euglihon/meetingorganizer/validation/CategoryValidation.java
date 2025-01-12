@@ -1,29 +1,26 @@
 package com.euglihon.meetingorganizer.validation;
 
 import com.euglihon.meetingorganizer.helpers.ViewHelpers;
+import com.euglihon.meetingorganizer.model.enums.Color;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class CategoryValidation {
 
-    public static boolean validateFields(TextField nameTextField, ComboBox comboBox, Label responseLabel) {
-        ViewHelpers.ClearResponseMessage(responseLabel);
-        boolean isValid = true;
+    private static boolean validateFields(TextField name, ComboBox<Color> color, Label response) {
+        ViewHelpers.clearResponseMessage(response);
 
-        isValid &= ValidationRules.validateField(
-                nameTextField,
-                ValidationRules.isName(nameTextField.getText()),
-                "Invalid category name",
-                responseLabel);
+        boolean isNameValid = ValidationRules.isName(name.getText());
+        boolean isColorValid = ValidationRules.isValidComboBox(color);
 
-        isValid &= ValidationRules.validateField(
-                comboBox,
-                ValidationRules.isValidComboBox(comboBox),
-                "Invalid color",
-                responseLabel
-        );
+        ViewHelpers.validateField(name, isNameValid, "Invalid category name", response);
+        ViewHelpers.validateField(color, isColorValid, "Invalid color", response);
 
-        return isValid;
+        return isNameValid && isColorValid;
+    }
+
+    public static boolean validateForm(TextField name, ComboBox<Color> color, Label response) {
+        return validateFields(name, color, response);
     }
 }

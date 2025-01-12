@@ -1,5 +1,6 @@
 package com.euglihon.meetingorganizer.controller;
 
+import com.euglihon.meetingorganizer.helpers.ListCellHelpers;
 import com.euglihon.meetingorganizer.helpers.ViewHelpers;
 import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.enums.Color;
@@ -19,18 +20,24 @@ public class CategoryController {
 
     private List<Category> categories;
 
-    @FXML private ComboBox<Color> colorComboBox;
-    @FXML private ListView<Category> categoryListView;
-    @FXML private TextField nameTextField;
-    @FXML private Label responseLabel;
+    @FXML
+    private ComboBox<Color> colorComboBox;
+    @FXML
+    private ListView<Category> categoryListView;
+    @FXML
+    private TextField nameTextField;
+    @FXML
+    private Label responseLabel;
 
-    @FXML private void initialize() {
+    @FXML
+    private void initialize() {
         this.loadAllCategories();
         this.refreshCategoryList(this.categories);
         this.setupColorComboBox();
     }
 
-    @FXML private void deleteCategory() {
+    @FXML
+    private void deleteCategory() {
         Category category = categoryListView.getSelectionModel().getSelectedItem();
         if (category == null) {
             return;
@@ -40,13 +47,14 @@ public class CategoryController {
         this.refreshCategoryList(this.categories);
     }
 
-    @FXML private void addCategory() {
-        if (this.validateForm()) {
+    @FXML
+    private void addCategory() {
+        if (!CategoryValidation.validateForm(this.nameTextField, this.colorComboBox, this.responseLabel)) {
             return;
         }
         Category category = this.createCategoryFromForm();
         if (!this.categoryService.addCategory(category)) {
-            ViewHelpers.CreateResponseMessage(this.responseLabel, "Category already exists");
+            ViewHelpers.createResponseMessage(this.responseLabel, "Category already exists");
         } else {
             this.resetForm();
             this.loadAllCategories();
@@ -56,12 +64,12 @@ public class CategoryController {
 
     private void setupColorComboBox() {
         this.colorComboBox.getItems().addAll(Color.values());
-        this.colorComboBox.setCellFactory(lv -> ViewHelpers.ColorNameWithColorCircle());
+        this.colorComboBox.setCellFactory(lv -> ListCellHelpers.colorNameWithColorCircle());
     }
 
     private void refreshCategoryList(List<Category> categories) {
         this.categoryListView.getItems().setAll(categories);
-        this.categoryListView.setCellFactory(lv -> ViewHelpers.CategoryWithColorComboBox());
+        this.categoryListView.setCellFactory(lv -> ListCellHelpers.categoryWithColorComboBox());
     }
 
     private void loadAllCategories() {
@@ -76,11 +84,7 @@ public class CategoryController {
     }
 
     private void resetForm() {
-        ViewHelpers.ClearInputFields(this.nameTextField);
-        ViewHelpers.ClearResponseMessage(this.responseLabel);
-    }
-
-    private boolean validateForm() {
-        return !CategoryValidation.validateFields(this.nameTextField, this.colorComboBox, this.responseLabel);
+        ViewHelpers.clearInputFields(this.nameTextField);
+        ViewHelpers.clearResponseMessage(this.responseLabel);
     }
 }

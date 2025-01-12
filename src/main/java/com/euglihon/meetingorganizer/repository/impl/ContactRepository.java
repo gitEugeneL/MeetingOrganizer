@@ -65,6 +65,52 @@ public class ContactRepository implements IContactRepository {
     }
 
     @Override
+    public List<Contact> findAllByEventId(int eventId) {
+        dbContext.getConnection();
+        String query = """
+                SELECT c.id, c.firstName, c.lastName, c.phone, c.categoryId
+                FROM Contacts c
+                INNER JOIN Events_Contacts ec ON c.id = ec.contactId
+                WHERE ec.eventId = ?;
+            """;
+        List<Contact> contacts = new ArrayList<>();
+
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, eventId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                contacts.add(this.mapToContact(resultSet));
+            }
+        } catch (SQLException ignored) {
+            logger.severe("Failed to find all Contacts for event");
+        }
+        return contacts;
+    }
+
+    @Override
+    public List<Contact> findAvailableContactsToAddToEvent(int eventId, int categoryId) {
+        dbContext.getConnection();
+        String query = """
+            SELECT c.id, c.firstName, c.lastName, c.phone, c.categoryId
+            FROM Contacts c
+            LEFT JOIN Events_Contacts ec ON c.id = ec.contactId AND ec.eventId = ?
+            WHERE ec.eventId IS NULL AND c.categoryId = ?;
+        """;
+        List<Contact> contacts = new ArrayList<>();
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, eventId);
+            statement.setInt(2, categoryId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                contacts.add(this.mapToContact(resultSet));
+            }
+        } catch (SQLException ignored) {
+            logger.severe("Failed to find available Contacts to add to Event");
+        }
+        return contacts;
+    }
+
+    @Override
     public List<Contact> findAllByCategoryId(int categoryId) {
         dbContext.getConnection();
         String query = "SELECT id, firstName, lastName, phone, categoryId FROM Contacts WHERE categoryId = ?;";
@@ -168,6 +214,24 @@ public class ContactRepository implements IContactRepository {
             logger.severe("Failed to find Contact by Id");
         }
         return contact;
+    }
+
+    @Override
+    public boolean isContactAssociatedWithEvent(int contactId) {
+        dbContext.getConnection();
+        String query = "SELECT COUNT(*) AS count FROM Events_Contacts ec WHERE ec.contactId = ?;";
+        boolean isAssociated = false;
+        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setInt(1, contactId);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+                int count = resultSet.getInt("count");
+                isAssociated = count > 0;
+            }
+        } catch (SQLException ignored) {
+            logger.severe("Failed to find Contact Associated with Event");
+        }
+        return isAssociated;
     }
 
     @Override

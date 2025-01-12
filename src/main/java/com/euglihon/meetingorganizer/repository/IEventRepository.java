@@ -10,6 +10,8 @@ public interface IEventRepository {
 
     void insert(Event event);
 
+    void addContact(int eventId, int contactId);
+
     List<Event> findAll(Integer eventId);
 
     List<Event> findAllByCategoryId(int categoryId);

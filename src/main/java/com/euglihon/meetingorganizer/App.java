@@ -64,7 +64,7 @@ public class App extends Application {
 
         // Set up the root layout and scene
         this.root = new BorderPane();
-        Scene scene = new Scene(root, 800, 950);
+        Scene scene = new Scene(root, 900, 950);
 
         // Add css styles
         scene.getStylesheets().add(App.class.getResource("css/main.css").toExternalForm());
@@ -136,7 +136,7 @@ public class App extends Application {
      */
     private void showEventPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("event-view.fxml"));
-        EventController eventController = new EventController(eventService, categoryService);
+        EventController eventController = new EventController(this.eventService, this.categoryService, this.contactService);
         loader.setController(eventController);
         this.root.setCenter(loader.load());
     }

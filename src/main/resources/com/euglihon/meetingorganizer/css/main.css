@@ -2,6 +2,10 @@
     -fx-background-color: #18181E;
 }
 
+.label {
+    -fx-text-fill: white;
+}
+
 .button {
     -fx-cursor: hand;
     -fx-font-size: 16px;
@@ -14,10 +18,18 @@
     -fx-background-color: #42217DFF;
 }
 
+.mainLabel,
+.secondLabel {
+    -fx-text-fill: white;
+}
+
 .mainLabel {
     -fx-font-size: 30px;
     -fx-padding: 30;
-    -fx-text-fill: white;
+}
+
+.secondLabel {
+    -fx-font-size: 22px;
 }
 
 .text-field {

@@ -24,6 +24,16 @@ public class ContactService implements IContactService {
     }
 
     @Override
+    public List<Contact> getAllContactsByEventId(int eventId) {
+        return this.contactRepository.findAllByEventId(eventId);
+    }
+
+    @Override
+    public List<Contact> getAvailableContactsToAddToEvent(int eventId, int categoryId) {
+        return this.contactRepository.findAvailableContactsToAddToEvent(eventId, categoryId);
+    }
+
+    @Override
     public boolean addContact(Contact contact) {
         if (this.contactRepository.findByPhone(contact.getPhone()) != null) {
             return false;
@@ -31,6 +41,12 @@ public class ContactService implements IContactService {
         this.contactRepository.insert(contact);
         return true;
     }
+
+    @Override
+    public boolean isContactAssociatedWithEvent(int contactId) {
+        return this.contactRepository.isContactAssociatedWithEvent(contactId);
+    }
+
 
     @Override
     public boolean updateContact(Contact contact) {

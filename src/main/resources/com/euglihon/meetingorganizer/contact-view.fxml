@@ -33,35 +33,47 @@
 
         <VBox>
             <Label styleClass="inputLabel" text="First name" />
-            <TextField fx:id="firstNameTextField" promptText="Enter contact name" prefHeight="40.0" minWidth="300.0">
+            <TextField fx:id="firstNameTextField" promptText="Enter contact name" prefHeight="40.0" minWidth="400.0">
                 <VBox.margin>
                     <Insets bottom="20.0" top="10.0" />
                 </VBox.margin>
             </TextField>
 
             <Label styleClass="inputLabel" text="Last name" />
-            <TextField fx:id="lastNameTextField" promptText="Enter contact last name" prefHeight="40.0" minWidth="300.0">
+            <TextField fx:id="lastNameTextField" promptText="Enter contact last name" prefHeight="40.0" minWidth="400.0">
                 <VBox.margin>
                     <Insets bottom="20.0" top="10.0" />
                 </VBox.margin>
             </TextField>
 
             <Label styleClass="inputLabel" text="Phone" />
-            <TextField fx:id="phoneTextField" promptText="Enter contact phone" prefHeight="40.0" minWidth="300.0">
+            <TextField fx:id="phoneTextField" promptText="Enter contact phone" prefHeight="40.0" minWidth="400.0">
                 <VBox.margin>
                     <Insets bottom="20.0" top="10.0" />
                 </VBox.margin>
             </TextField>
 
-            <Label styleClass="inputLabel" text="Category" />
-            <ComboBox fx:id="categoryItemComboBox" prefHeight="40.0" minWidth="300.0" promptText="Select a category">
-                <VBox.margin>
-                    <Insets bottom="20.0" top="10.0" />
-                </VBox.margin>
-            </ComboBox>
+            <VBox fx:id="categoryContainer">
+                <Label styleClass="inputLabel" text="Category">
+                    <VBox.margin>
+                        <Insets bottom="5.0"/>
+                    </VBox.margin>
+                </Label>
+                <ComboBox fx:id="categoryItemComboBox" prefHeight="40.0" minWidth="400.0" promptText="Select a category">
+                    <VBox.margin>
+                        <Insets bottom="20.0" top="10.0" />
+                    </VBox.margin>
+                </ComboBox>
+            </VBox>
 
-            <HBox fx:id="buttonGroupField" alignment="CENTER" spacing="20.0">
-                <!-- Box for dynamic buttons -->
+            <HBox fx:id="addContainer" alignment="CENTER" spacing="20.0" managed="false" visible="false">
+                <Button text="Create new contact" onAction="#addContact"/>
+            </HBox>
+
+            <HBox fx:id="updateContainer" alignment="CENTER" spacing="20.0" managed="false" visible="false">
+                <Button text="Exit" onAction="#exitEditing"/>
+                <Button text="Delete" onAction="#deleteContact"/>
+                <Button text="Update" onAction="#editContact" />
             </HBox>
         </VBox>
     </HBox>

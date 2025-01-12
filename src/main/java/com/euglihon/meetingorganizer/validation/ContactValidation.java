@@ -1,40 +1,34 @@
 package com.euglihon.meetingorganizer.validation;
 
 import com.euglihon.meetingorganizer.helpers.ViewHelpers;
+import com.euglihon.meetingorganizer.model.Category;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class ContactValidation {
-    public static boolean validateFields(
-            TextField firstNameTextField, TextField lastNameTextField, TextField phoneTextField, ComboBox comboBox, Label responseLabel) {
-        ViewHelpers.ClearResponseMessage(responseLabel);
-        boolean isValid = true;
 
-        isValid &= ValidationRules.validateField(
-                firstNameTextField,
-                ValidationRules.isName(firstNameTextField.getText()),
-                "Invalid first name",
-                responseLabel);
+    private static boolean validateFields(TextField firstName, TextField lastName,
+                                          TextField phone, ComboBox<Category> category, Label response) {
 
-        isValid &= ValidationRules.validateField(
-                lastNameTextField,
-                ValidationRules.isName(lastNameTextField.getText()),
-                "Invalid last name",
-                responseLabel);
+        ViewHelpers.clearResponseMessage(response);
 
-        isValid &= ValidationRules.validateField(
-                phoneTextField,
-                ValidationRules.isValidPhoneNumber(phoneTextField.getText()),
-                "Invalid phone number format",
-                responseLabel);
+        boolean isFirstNameValid = ValidationRules.isName(firstName.getText());
+        boolean isLastNameValid = ValidationRules.isName(lastName.getText());
+        boolean isPhoneValid = ValidationRules.isValidPhoneNumber(phone.getText());
+        boolean isCategoryValid = ValidationRules.isValidComboBox(category);
 
-        isValid &= ValidationRules.validateField(
-                comboBox,
-                ValidationRules.isValidComboBox(comboBox),
-                "Invalid category",
-                responseLabel);
+        ViewHelpers.validateField(firstName, isFirstNameValid,"Invalid first name", response);
+        ViewHelpers.validateField(lastName, isLastNameValid, "Invalid last name", response);
+        ViewHelpers.validateField(phone, isPhoneValid, "Invalid phone", response);
+        ViewHelpers.validateField(category, isCategoryValid, "Invalid category", response);
 
-        return isValid;
+        return isFirstNameValid && isLastNameValid && isPhoneValid && isCategoryValid;
+    }
+
+    public static boolean validateForm(TextField firstName, TextField lastName,
+                                       TextField phone, ComboBox<Category> categoryItem, Label response) {
+
+        return validateFields(firstName, lastName, phone, categoryItem, response);
     }
 }

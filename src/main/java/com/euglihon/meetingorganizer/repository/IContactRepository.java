@@ -12,13 +12,19 @@ public interface IContactRepository {
 
     List<Contact> findAllByCategoryId(int categoryId);
 
+    List<Contact> findAllByEventId(int eventId);
+
     void insert(Contact contact);
 
     void update(Contact contact);
 
     Contact findByPhone(String phone);
 
+    List<Contact> findAvailableContactsToAddToEvent(int eventId, int categoryId);
+
     boolean isPhoneExist(Contact contact);
+
+    boolean isContactAssociatedWithEvent(int contactId);
 
     Contact findById(int contactId);
 

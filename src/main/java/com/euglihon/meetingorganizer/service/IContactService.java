@@ -10,9 +10,15 @@ public interface IContactService {
 
     List<Contact> getAllContactsByCategoryId(int categoryId);
 
+    List<Contact> getAllContactsByEventId(int eventId);
+
+    List<Contact> getAvailableContactsToAddToEvent(int eventId, int categoryId);
+
     boolean addContact(Contact contact);
 
     boolean updateContact(Contact contact);
 
     void deleteContactById(int contactId);
+
+    boolean isContactAssociatedWithEvent(int contactId);
 }

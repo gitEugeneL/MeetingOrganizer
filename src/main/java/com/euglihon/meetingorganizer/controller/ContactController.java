@@ -1,6 +1,7 @@
 package com.euglihon.meetingorganizer.controller;
 
-import com.euglihon.meetingorganizer.controller.common.Base;
+import com.euglihon.meetingorganizer.helpers.ComboBoxHelpers;
+import com.euglihon.meetingorganizer.helpers.ListCellHelpers;
 import com.euglihon.meetingorganizer.helpers.ViewHelpers;
 import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.Contact;
@@ -10,6 +11,7 @@ import com.euglihon.meetingorganizer.validation.ContactValidation;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.util.List;
 
@@ -25,32 +27,45 @@ public class ContactController {
     private List<Category> categories;
     private List<Contact> contacts;
 
-    @FXML private ListView<Contact> contactListView;
-    @FXML private ComboBox<Category> categoryComboBox;
-    @FXML private ComboBox<Category> categoryItemComboBox;
-    @FXML private TextField firstNameTextField, lastNameTextField, phoneTextField;
-    @FXML private HBox buttonGroupField;
-    @FXML private Label responseLabel;
+    @FXML
+    private ListView<Contact> contactListView;
+    @FXML
+    private ComboBox<Category> categoryComboBox;
+    @FXML
+    private ComboBox<Category> categoryItemComboBox;
+    @FXML
+    private TextField firstNameTextField, lastNameTextField, phoneTextField;
+    @FXML
+    private HBox addContainer, updateContainer;
+    @FXML
+    private VBox categoryContainer;
+    @FXML
+    private Label responseLabel;
 
-    @FXML private void initialize() {
+    @FXML
+    private void initialize() {
         this.loadAllCategories();
         this.loadAllContacts();
         this.refreshContactList(this.contacts);
-        Base.setupCategoryItemComboBox(this.categories, this.categoryItemComboBox);
-        Base.setupCategoryComboBox(this.categories, this.categoryComboBox);
-        this.createButton("Create");
+        ComboBoxHelpers.setupCategoryItemComboBox(this.categories, this.categoryItemComboBox);
+        ComboBoxHelpers.setupCategoryComboBox(this.categories, this.categoryComboBox);
+        ViewHelpers.showContainer(this.addContainer);
     }
 
-    @FXML private void contactListForm() {
+    @FXML
+    private void contactListForm() {
         this.resetForm();
         Contact contact = this.contactListView.getSelectionModel().getSelectedItem();
+
         if (contact != null) {
+            this.contactAssociatedWithEvent(contact.getId());
             this.populateForm(contact);
-            this.updateViewForEdit();
+            this.toggleEditingMode(true);
         }
     }
 
-    @FXML private void filterContacts() {
+    @FXML
+    private void filterContacts() {
         Category selectedCategory = this.categoryComboBox.getSelectionModel().getSelectedItem();
         if (selectedCategory == null) {
             return;
@@ -59,19 +74,22 @@ public class ContactController {
         this.refreshContactList(this.contacts);
     }
 
-    @FXML private void clearFilterContacts() {
+    @FXML
+    private void clearFilterContacts() {
         this.loadAllContacts();
         this.categoryComboBox.getSelectionModel().clearSelection();
         this.refreshContactList(this.contacts);
     }
 
-    @FXML private void addElement() {
-        if (this.validateForm()) {
+    @FXML
+    private void addContact() {
+        if (!ContactValidation.validateForm(this.firstNameTextField,
+                this.lastNameTextField, this.phoneTextField, this.categoryItemComboBox, this.responseLabel)) {
             return;
         }
         Contact contact = this.createContactFromForm();
         if (!this.contactService.addContact(contact)) {
-            ViewHelpers.CreateResponseMessage(responseLabel, "Contact already exists");
+            ViewHelpers.createResponseMessage(responseLabel, "Contact already exists");
         } else {
             this.resetForm();
             this.loadAllContacts();
@@ -79,22 +97,26 @@ public class ContactController {
         }
     }
 
-    @FXML private void editElement() {
-        if (this.validateForm()){
+    @FXML
+    private void editContact() {
+        if (!ContactValidation.validateForm(this.firstNameTextField,
+                this.lastNameTextField, this.phoneTextField, this.categoryItemComboBox, this.responseLabel)) {
             return;
         }
         Contact contact = this.createContactFromForm();
         contact.setId(contactListView.getSelectionModel().getSelectedItem().getId());
         if (!contactService.updateContact(contact)) {
-            ViewHelpers.CreateResponseMessage(responseLabel, "Error updating contact");
+            ViewHelpers.createResponseMessage(responseLabel, "Phone is already used by another contact");
         } else {
             this.resetForm();
             this.loadAllContacts();
             this.refreshContactList(this.contacts);
+            this.exitEditing();
         }
     }
 
-    @FXML private void deleteElement() {
+    @FXML
+    private void deleteContact() {
         int contactId = contactListView.getSelectionModel().getSelectedItem().getId();
         contactService.deleteContactById(contactId);
         this.loadAllContacts();
@@ -102,9 +124,10 @@ public class ContactController {
         this.exitEditing();
     }
 
-    @FXML private void exitEditing() {
+    @FXML
+    private void exitEditing() {
         this.resetForm();
-        this.updateViewForAdd();
+        this.toggleEditingMode(false);
     }
 
     private void loadAllContacts() {
@@ -121,22 +144,7 @@ public class ContactController {
 
     private void refreshContactList(List<Contact> contacts) {
         this.contactListView.getItems().setAll(contacts);
-        this.contactListView.setCellFactory(lv -> ViewHelpers.ContactWithCategoryContactList(this.categories));
-    }
-
-    private void createButton(String buttonName) {
-        Button button = new Button(buttonName);
-        button.setOnAction(event -> this.handleButtonAction(buttonName));
-        this.buttonGroupField.getChildren().add(button);
-    }
-
-    private void handleButtonAction(String buttonName) {
-        switch (buttonName) {
-            case "Create": this.addElement(); break;
-            case "Edit": this.editElement(); break;
-            case "Delete": this.deleteElement(); break;
-            case "Exit": this.exitEditing(); break;
-        }
+        this.contactListView.setCellFactory(lv -> ListCellHelpers.contactWithCategoryContactList(this.categories));
     }
 
     private Contact createContactFromForm() {
@@ -156,29 +164,27 @@ public class ContactController {
     }
 
     private void resetForm() {
-        ViewHelpers.ClearInputFields(this.firstNameTextField, this.lastNameTextField, this.phoneTextField);
-        ViewHelpers.ClearResponseMessage(this.responseLabel);
+        this.toggleEditingMode(false);
+        ViewHelpers.clearInputFields(this.firstNameTextField, this.lastNameTextField, this.phoneTextField);
+        ViewHelpers.clearResponseMessage(this.responseLabel);
     }
 
-    private boolean validateForm() {
-        return !ContactValidation.validateFields(
-                this.firstNameTextField,
-                this.lastNameTextField,
-                this.phoneTextField,
-                this.categoryItemComboBox,
-                this.responseLabel
-        );
+    private void contactAssociatedWithEvent(int contactId) {
+        boolean isContactAssociated = this.contactService.isContactAssociatedWithEvent(contactId);
+        if (isContactAssociated) {
+            ViewHelpers.disableContainer(this.categoryContainer);
+        } else {
+            ViewHelpers.showContainer(this.categoryContainer);
+        }
     }
 
-    private void updateViewForEdit() {
-        this.buttonGroupField.getChildren().clear();
-        this.createButton("Exit");
-        this.createButton("Edit");
-        this.createButton("Delete");
-    }
-
-    private void updateViewForAdd() {
-        this.buttonGroupField.getChildren().clear();
-        this.createButton("Create");
+    private void toggleEditingMode(boolean isEditing) {
+        if (isEditing) {
+            ViewHelpers.disableContainer(addContainer);
+            ViewHelpers.showContainer(updateContainer);
+        } else {
+            ViewHelpers.showContainer(addContainer);
+            ViewHelpers.disableContainer(updateContainer);
+        }
     }
 }

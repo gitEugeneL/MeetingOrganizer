@@ -1,24 +1,11 @@
 package com.euglihon.meetingorganizer.validation;
 
-import com.euglihon.meetingorganizer.helpers.ViewHelpers;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
 import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ValidationRules {
-
-    public static boolean validateField(Control field, boolean isValid, String errorMessage, Label responseLabel) {
-        if (isValid) {
-            ViewHelpers.changeInputBorder(field, true);
-        } else {
-            ViewHelpers.CreateResponseMessage(responseLabel, errorMessage);
-            ViewHelpers.changeInputBorder(field, false);
-        }
-        return isValid;
-    }
 
     public static boolean isName(String str) {
         int strLength = str.length();
