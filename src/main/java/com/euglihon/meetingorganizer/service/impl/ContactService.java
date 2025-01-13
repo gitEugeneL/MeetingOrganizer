@@ -9,6 +9,7 @@ import java.util.List;
 public class ContactService implements IContactService {
 
     private final IContactRepository contactRepository;
+
     public ContactService(IContactRepository contactRepository) {
         this.contactRepository = contactRepository;
     }

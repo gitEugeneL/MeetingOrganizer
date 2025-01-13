@@ -22,6 +22,7 @@ public class EventController {
     private final IEventService eventService;
     private final ICategoryService categoryService;
     private final IContactService contactService;
+
     public EventController(IEventService eventService, ICategoryService categoryService, IContactService contactService) {
         this.eventService = eventService;
         this.categoryService = categoryService;
@@ -51,7 +52,7 @@ public class EventController {
     @FXML
     private TextField titleTextField, updateTitle;
     @FXML
-    private DatePicker datePicker, updateDatePicker;
+    private DatePicker createEventPicker, updateEventPicker, deleteOlderEvenPicker;
     @FXML
     private Label responseLabel;
 
@@ -70,7 +71,8 @@ public class EventController {
         this.createParticipantsContainer();
     }
 
-    @FXML void participantListForm() {
+    @FXML
+    void participantListForm() {
         Contact selectedEventContact = this.eventContactListView.getSelectionModel().getSelectedItem();
         if (selectedEventContact == null) {
             return;
@@ -104,13 +106,6 @@ public class EventController {
         ViewHelpers.showContainer(this.addContainer);
     }
 
-    @FXML
-    private void createEditContainer() {
-        ViewHelpers.disableContainer(this.participantsContainer);
-        ViewHelpers.disableContainer(this.addContainer);
-        ViewHelpers.showContainer(this.editContainer);
-    }
-
     private void createParticipantsContainer() {
         Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
         if (selectedEvent == null) {
@@ -135,7 +130,7 @@ public class EventController {
         this.exitParticipantsContainer();
         ViewHelpers.showContainer(this.editContainer);
         this.updateTitle.setText(selectedEvent.getTitle());
-        this.updateDatePicker.setValue(selectedEvent.getDate());
+        this.updateEventPicker.setValue(selectedEvent.getDate());
     }
 
     @FXML
@@ -154,23 +149,33 @@ public class EventController {
         ViewHelpers.disableContainer(this.excludeParticipantContainer);
     }
 
-    @FXML
-    private void addEvent() {
-        if (!EventValidation.validateForm(this.titleTextField, this.datePicker,
-                this.categoryItemComboBox, this.responseLabel)) {
-            return;
-        }
-        Event event = this.createEventFromForm();
-        this.eventService.addEvent(event);
+    private void finalizeEditing() {
         this.resetForm();
+        this.exitAddContainer();
+        this.exitParticipantsContainer();
+        this.exitEditContainer();
         this.loadAllEvents();
         this.refreshEventList(this.events);
         this.clearFilterEvents();
     }
 
     @FXML
+    private void addEvent() {
+        if (!EventValidation.validateForm(this.titleTextField, this.createEventPicker,
+                this.categoryItemComboBox, this.responseLabel)) {
+            return;
+        }
+        Event event = new Event();
+        event.setTitle(this.titleTextField.getText());
+        event.setDate(this.createEventPicker.getValue());
+        event.setCategoryId(this.categoryItemComboBox.getValue().getId());
+        this.eventService.addEvent(event);
+        this.finalizeEditing();
+    }
+
+    @FXML
     private void updateEvent() {
-        if (!EventValidation.validateForm(this.updateTitle, this.updateDatePicker, this.responseLabel)) {
+        if (!EventValidation.validateForm(this.updateTitle, this.updateEventPicker, this.responseLabel)) {
             return;
         }
         Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
@@ -178,15 +183,12 @@ public class EventController {
             return;
         }
         selectedEvent.setTitle(this.updateTitle.getText());
-        selectedEvent.setDate(this.updateDatePicker.getValue());
+        selectedEvent.setDate(this.updateEventPicker.getValue());
 
         if (!this.eventService.updateEvent(selectedEvent)) {
             ViewHelpers.createResponseMessage(this.responseLabel, "Event not updated");
         } else {
-            this.resetForm();
-            this.loadAllEvents();
-            this.refreshEventList(this.events);
-            this.clearFilterEvents();
+            this.finalizeEditing();
         }
     }
 
@@ -197,9 +199,16 @@ public class EventController {
             return;
         }
         eventService.deleteEventById(selectedEvent.getId());
-        this.exitParticipantsContainer();
-        this.loadAllEvents();
-        this.refreshEventList(this.events);
+        this.finalizeEditing();
+    }
+
+    @FXML
+    private void deleteOlderEvents() {
+        if (!EventValidation.validateForm(this.deleteOlderEvenPicker, this.responseLabel)) {
+            return;
+        }
+        this.eventService.deleteEventOlderThan(this.deleteOlderEvenPicker.getValue());
+        this.finalizeEditing();
     }
 
     @FXML
@@ -261,19 +270,9 @@ public class EventController {
         this.eventContactListView.setCellFactory(lv -> ListCellHelpers.contactWithCategoryContactList(this.categories));
     }
 
-    private Event createEventFromForm() {
-        Event event = new Event();
-        event.setTitle(this.titleTextField.getText());
-        event.setDate(this.datePicker.getValue());
-        event.setCategoryId(this.categoryItemComboBox.getValue().getId());
-        return event;
-    }
-
     private void resetForm() {
         ViewHelpers.clearInputFields(this.updateTitle);
         ViewHelpers.clearInputFields(this.titleTextField);
         ViewHelpers.clearResponseMessage(this.responseLabel);
-        this.exitAddContainer();
-        this.exitEditContainer();
     }
 }

@@ -4,6 +4,7 @@ import com.euglihon.meetingorganizer.data.DbContext;
 import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.enums.Color;
 import com.euglihon.meetingorganizer.repository.ICategoryRepository;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,7 +38,7 @@ public final class CategoryRepository implements ICategoryRepository {
                         name VARCHAR(255) NOT NULL UNIQUE,
                         color VARCHAR(20) NOT NULL CHECK (color IN ('RED', 'YELLOW', 'GREEN', 'BLUE')));
                 """;
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.execute();
         } catch (SQLException ignored) {
             logger.severe("Failed to create Categories table");
@@ -48,7 +49,7 @@ public final class CategoryRepository implements ICategoryRepository {
     public void insert(Category category) {
         dbContext.getConnection();
         String query = "INSERT INTO Categories (name, color) VALUES (?, ?)";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setString(1, category.getName());
             statement.setString(2, category.getColor().toString());
             statement.executeUpdate();
@@ -61,7 +62,7 @@ public final class CategoryRepository implements ICategoryRepository {
     public void deleteById(int categoryId) {
         dbContext.getConnection();
         String query = "DELETE FROM Categories WHERE id = ?";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, categoryId);
             statement.executeUpdate();
         } catch (SQLException ignored) {
@@ -75,7 +76,7 @@ public final class CategoryRepository implements ICategoryRepository {
         String query = "SELECT id, name, color FROM Categories";
         List<Category> categories = new ArrayList<>();
 
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 categories.add(this.mapToCategory(resultSet));
@@ -91,7 +92,7 @@ public final class CategoryRepository implements ICategoryRepository {
         dbContext.getConnection();
         String query = "SELECT id, name, color FROM Categories WHERE name = ?";
         Category category = null;
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setString(1, name);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {

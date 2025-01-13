@@ -4,11 +4,15 @@ import com.euglihon.meetingorganizer.data.DbContext;
 import com.euglihon.meetingorganizer.model.Contact;
 import com.euglihon.meetingorganizer.model.Event;
 import com.euglihon.meetingorganizer.repository.IEventRepository;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class EventRepository implements IEventRepository {
@@ -16,6 +20,7 @@ public class EventRepository implements IEventRepository {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private final DbContext dbContext;
+
     public EventRepository(DbContext dbContext) {
         this.dbContext = dbContext;
     }
@@ -51,7 +56,7 @@ public class EventRepository implements IEventRepository {
     public void insert(Event event) {
         dbContext.getConnection();
         String query = "INSERT INTO Events (title, date, categoryId) VALUES (?, ?, ?);";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setString(1, event.getTitle());
             statement.setString(2, event.getDate().toString());
             statement.setInt(3, event.getCategoryId());
@@ -65,7 +70,7 @@ public class EventRepository implements IEventRepository {
     public void update(Event event) {
         dbContext.getConnection();
         String query = "UPDATE Events SET title = ?, date = ? WHERE id = ?;";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setString(1, event.getTitle());
             statement.setString(2, event.getDate().toString());
             statement.setInt(3, event.getId());
@@ -79,7 +84,7 @@ public class EventRepository implements IEventRepository {
     public void addContact(int eventId, int contactId) {
         dbContext.getConnection();
         String query = "INSERT INTO Events_Contacts (eventId, contactId) VALUES (?, ?);";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, eventId);
             statement.setInt(2, contactId);
             statement.executeUpdate();
@@ -92,7 +97,7 @@ public class EventRepository implements IEventRepository {
     public void removeContact(int eventId, int contactId) {
         dbContext.getConnection();
         String query = "DELETE FROM Events_Contacts WHERE eventId = ? AND contactId = ?;";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, eventId);
             statement.setInt(2, contactId);
             statement.executeUpdate();
@@ -106,7 +111,7 @@ public class EventRepository implements IEventRepository {
         dbContext.getConnection();
         boolean exists = false;
         String query = "SELECT id FROM Events WHERE id = ?;";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, event.getId());
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -152,8 +157,8 @@ public class EventRepository implements IEventRepository {
             query += " WHERE c.id = ?";
         }
         query += " ORDER BY e.date;";
-        
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             if (id != null) {
                 statement.setInt(1, id);
             }
@@ -202,11 +207,23 @@ public class EventRepository implements IEventRepository {
     public void deleteById(int eventId) {
         dbContext.getConnection();
         String query = "DELETE FROM Events WHERE id = ?";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, eventId);
             statement.executeUpdate();
         } catch (SQLException ignored) {
             logger.severe("Failed to delete Event by id");
+        }
+    }
+
+    @Override
+    public void deleteOlderThan(LocalDate date) {
+        dbContext.getConnection();
+        String query = "DELETE FROM Events WHERE date < ?";
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setString(1, date.toString());
+            statement.executeUpdate();
+        } catch (SQLException ignored) {
+            logger.severe("Failed to delete Event by date");
         }
     }
 }

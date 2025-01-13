@@ -4,11 +4,13 @@ import com.euglihon.meetingorganizer.model.Event;
 import com.euglihon.meetingorganizer.repository.IEventRepository;
 import com.euglihon.meetingorganizer.service.IEventService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class EventService implements IEventService {
 
     private final IEventRepository eventRepository;
+
     public EventService(IEventRepository eventRepository) {
         this.eventRepository = eventRepository;
     }
@@ -50,5 +52,10 @@ public class EventService implements IEventService {
     @Override
     public void deleteEventById(int eventId) {
         this.eventRepository.deleteById(eventId);
+    }
+
+    @Override
+    public void deleteEventOlderThan(LocalDate date) {
+        this.eventRepository.deleteOlderThan(date);
     }
 }

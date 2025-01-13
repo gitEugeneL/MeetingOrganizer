@@ -9,30 +9,36 @@ import javafx.scene.control.TextField;
 
 public class EventValidation {
 
-    private static boolean validateFields(TextField title, DatePicker date,
-                                         ComboBox<Category> category, Label response) {
-
-        ViewHelpers.clearResponseMessage(response);
-
+    private static boolean validateTitle(TextField title, Label response) {
         boolean isTitleValid = ValidationRules.isTitle(title.getText());
-        boolean isDateValid = ValidationRules.isValidDate(date);
-        boolean isCategoryValid = true;
-
         ViewHelpers.validateField(title, isTitleValid, "Invalid title", response);
-        ViewHelpers.validateField(date,isDateValid, "Invalid date", response);
+        return isTitleValid;
+    }
 
-        if (category != null) {
-            isCategoryValid = ValidationRules.isValidComboBox(category);
-            ViewHelpers.validateField(category, isCategoryValid, "Invalid category", response);
-        }
-        return isTitleValid && isDateValid && isCategoryValid;
+    private static boolean validateDate(DatePicker date, Label response) {
+        boolean isDateValid = ValidationRules.isValidDate(date);
+        ViewHelpers.validateField(date, isDateValid, "Invalid date", response);
+        return isDateValid;
+    }
+
+    private static boolean validateCategory(ComboBox<Category> category, Label response) {
+        boolean isCategoryValid = ValidationRules.isValidComboBox(category);
+        ViewHelpers.validateField(category, isCategoryValid, "Invalid category", response);
+        return isCategoryValid;
     }
 
     public static boolean validateForm(TextField title, DatePicker date, ComboBox<Category> categoryItem, Label response) {
-        return validateFields(title, date, categoryItem, response);
+        ViewHelpers.clearResponseMessage(response);
+        return validateTitle(title, response) && validateCategory(categoryItem, response) && validateDate(date, response);
     }
 
     public static boolean validateForm(TextField title, DatePicker date, Label response) {
-        return validateFields(title, date, null, response);
+        ViewHelpers.clearResponseMessage(response);
+        return validateTitle(title, response) && validateDate(date, response);
+    }
+
+    public static boolean validateForm(DatePicker date, Label response) {
+        ViewHelpers.clearResponseMessage(response);
+        return validateDate(date, response);
     }
 }

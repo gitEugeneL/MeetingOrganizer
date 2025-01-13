@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<VBox style="-fx-background-color: #18181E" alignment="CENTER" spacing="10.0" xmlns="http://javafx.com/javafx/11.0.2">
+    <Label style="-fx-text-fill: white; -fx-font-size: 18px" text="About"/>
+    <Label style="-fx-text-fill: white; -fx-font-size: 14px" text="Meeting Organizer v1.0.1"/>
+</VBox>

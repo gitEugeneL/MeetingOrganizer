@@ -1,6 +1,8 @@
 package com.euglihon.meetingorganizer.helpers;
 
-import javafx.scene.control.*;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 
 public final class ViewHelpers {
@@ -42,7 +44,7 @@ public final class ViewHelpers {
     }
 
     public static void clearResponseMessage(Label label) {
-            label.setText("");
+        label.setText("");
     }
 
     public static void createResponseMessage(Label label, String message) {

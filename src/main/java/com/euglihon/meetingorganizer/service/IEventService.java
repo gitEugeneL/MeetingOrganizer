@@ -2,6 +2,7 @@ package com.euglihon.meetingorganizer.service;
 
 import com.euglihon.meetingorganizer.model.Event;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IEventService {
@@ -19,4 +20,6 @@ public interface IEventService {
     List<Event> getAllByCategoryId(int categoryId);
 
     void deleteEventById(int eventId);
+
+    void deleteEventOlderThan(LocalDate date);
 }

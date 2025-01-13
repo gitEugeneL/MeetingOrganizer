@@ -9,7 +9,10 @@ import com.euglihon.meetingorganizer.service.ICategoryService;
 import com.euglihon.meetingorganizer.service.IContactService;
 import com.euglihon.meetingorganizer.validation.ContactValidation;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -19,6 +22,7 @@ public class ContactController {
 
     private final IContactService contactService;
     private final ICategoryService categoryService;
+
     public ContactController(IContactService contactService, ICategoryService categoryService) {
         this.contactService = contactService;
         this.categoryService = categoryService;

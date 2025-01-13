@@ -2,6 +2,7 @@ package com.euglihon.meetingorganizer.repository;
 
 import com.euglihon.meetingorganizer.model.Event;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IEventRepository {
@@ -24,5 +25,5 @@ public interface IEventRepository {
 
     void deleteById(int eventId);
 
-    // todo delete by date
+    void deleteOlderThan(LocalDate date);
 }

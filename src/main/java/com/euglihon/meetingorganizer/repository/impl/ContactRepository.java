@@ -3,6 +3,7 @@ package com.euglihon.meetingorganizer.repository.impl;
 import com.euglihon.meetingorganizer.data.DbContext;
 import com.euglihon.meetingorganizer.model.Contact;
 import com.euglihon.meetingorganizer.repository.IContactRepository;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,6 +15,7 @@ public class ContactRepository implements IContactRepository {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     private final DbContext dbContext;
+
     public ContactRepository(DbContext dbContext) {
         this.dbContext = dbContext;
     }
@@ -40,7 +42,7 @@ public class ContactRepository implements IContactRepository {
                     categoryId INTEGER NOT NULL,
                     FOREIGN KEY(categoryId) REFERENCES Categories(id) ON DELETE CASCADE ON UPDATE CASCADE);
                 """;
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.execute();
         } catch (SQLException ignored) {
             logger.severe("Failed to create Contacts table");
@@ -53,7 +55,7 @@ public class ContactRepository implements IContactRepository {
         String query = "SELECT id, firstName, lastName, phone, categoryId from Contacts;";
         List<Contact> contacts = new ArrayList<>();
 
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
                 contacts.add(this.mapToContact(resultSet));
@@ -68,14 +70,14 @@ public class ContactRepository implements IContactRepository {
     public List<Contact> findAllByEventId(int eventId) {
         dbContext.getConnection();
         String query = """
-                SELECT c.id, c.firstName, c.lastName, c.phone, c.categoryId
-                FROM Contacts c
-                INNER JOIN Events_Contacts ec ON c.id = ec.contactId
-                WHERE ec.eventId = ?;
-            """;
+                    SELECT c.id, c.firstName, c.lastName, c.phone, c.categoryId
+                    FROM Contacts c
+                    INNER JOIN Events_Contacts ec ON c.id = ec.contactId
+                    WHERE ec.eventId = ?;
+                """;
         List<Contact> contacts = new ArrayList<>();
 
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, eventId);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -91,13 +93,13 @@ public class ContactRepository implements IContactRepository {
     public List<Contact> findAvailableContactsToAddToEvent(int eventId, int categoryId) {
         dbContext.getConnection();
         String query = """
-            SELECT c.id, c.firstName, c.lastName, c.phone, c.categoryId
-            FROM Contacts c
-            LEFT JOIN Events_Contacts ec ON c.id = ec.contactId AND ec.eventId = ?
-            WHERE ec.eventId IS NULL AND c.categoryId = ?;
-        """;
+                    SELECT c.id, c.firstName, c.lastName, c.phone, c.categoryId
+                    FROM Contacts c
+                    LEFT JOIN Events_Contacts ec ON c.id = ec.contactId AND ec.eventId = ?
+                    WHERE ec.eventId IS NULL AND c.categoryId = ?;
+                """;
         List<Contact> contacts = new ArrayList<>();
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, eventId);
             statement.setInt(2, categoryId);
             ResultSet resultSet = statement.executeQuery();
@@ -116,7 +118,7 @@ public class ContactRepository implements IContactRepository {
         String query = "SELECT id, firstName, lastName, phone, categoryId FROM Contacts WHERE categoryId = ?;";
         List<Contact> contacts = new ArrayList<>();
 
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, categoryId);
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
@@ -132,12 +134,12 @@ public class ContactRepository implements IContactRepository {
     public void insert(Contact contact) {
         dbContext.getConnection();
         String query = "INSERT INTO Contacts (firstName, lastName, phone, categoryId) VALUES (?, ?, ?, ?);";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
-           statement.setString(1, contact.getFirstName());
-           statement.setString(2, contact.getLastName());
-           statement.setString(3, contact.getPhone());
-           statement.setInt(4, contact.getCategoryId());
-           statement.executeUpdate();
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+            statement.setString(1, contact.getFirstName());
+            statement.setString(2, contact.getLastName());
+            statement.setString(3, contact.getPhone());
+            statement.setInt(4, contact.getCategoryId());
+            statement.executeUpdate();
         } catch (SQLException ignored) {
             logger.severe("Failed to insert new Contact");
         }
@@ -151,7 +153,7 @@ public class ContactRepository implements IContactRepository {
                     firstName = ?, lastName = ?, phone = ?, categoryId = ?
                     WHERE id = ?;
                 """;
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setString(1, contact.getFirstName());
             statement.setString(2, contact.getLastName());
             statement.setString(3, contact.getPhone());
@@ -185,7 +187,7 @@ public class ContactRepository implements IContactRepository {
         dbContext.getConnection();
         boolean exists = false;
         String query = "SELECT id FROM Contacts WHERE phone = ? AND id != ?;";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setString(1, contact.getPhone());
             statement.setInt(2, contact.getId());
             ResultSet resultSet = statement.executeQuery();
@@ -203,7 +205,7 @@ public class ContactRepository implements IContactRepository {
         dbContext.getConnection();
         String query = "SELECT id, firstName, lastName, phone, categoryId FROM Contacts WHERE id = ?;";
         Contact contact = null;
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, contactId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -221,7 +223,7 @@ public class ContactRepository implements IContactRepository {
         dbContext.getConnection();
         String query = "SELECT COUNT(*) AS count FROM Events_Contacts ec WHERE ec.contactId = ?;";
         boolean isAssociated = false;
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, contactId);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
@@ -238,7 +240,7 @@ public class ContactRepository implements IContactRepository {
     public void deleteById(int contactId) {
         dbContext.getConnection();
         String query = "DELETE FROM Contacts WHERE id = ?;";
-        try(PreparedStatement statement = dbContext.getPreparedStatement(query)) {
+        try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             statement.setInt(1, contactId);
             statement.executeUpdate();
         } catch (SQLException e) {

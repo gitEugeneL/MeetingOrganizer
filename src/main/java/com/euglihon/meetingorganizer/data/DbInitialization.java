@@ -9,6 +9,7 @@ public class DbInitialization {
     private final ICategoryRepository categoryRepository;
     private final IContactRepository contactRepository;
     private final IEventRepository eventRepository;
+
     public DbInitialization(
             ICategoryRepository categoryRepository,
             IContactRepository contactRepository,

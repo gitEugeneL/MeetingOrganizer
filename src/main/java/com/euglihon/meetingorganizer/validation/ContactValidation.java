@@ -18,7 +18,7 @@ public class ContactValidation {
         boolean isPhoneValid = ValidationRules.isValidPhoneNumber(phone.getText());
         boolean isCategoryValid = ValidationRules.isValidComboBox(category);
 
-        ViewHelpers.validateField(firstName, isFirstNameValid,"Invalid first name", response);
+        ViewHelpers.validateField(firstName, isFirstNameValid, "Invalid first name", response);
         ViewHelpers.validateField(lastName, isLastNameValid, "Invalid last name", response);
         ViewHelpers.validateField(phone, isPhoneValid, "Invalid phone", response);
         ViewHelpers.validateField(category, isCategoryValid, "Invalid category", response);

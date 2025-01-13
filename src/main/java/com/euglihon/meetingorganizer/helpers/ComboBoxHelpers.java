@@ -3,6 +3,7 @@ package com.euglihon.meetingorganizer.helpers;
 import com.euglihon.meetingorganizer.model.Category;
 import com.euglihon.meetingorganizer.model.Contact;
 import javafx.scene.control.ComboBox;
+
 import java.util.List;
 
 public class ComboBoxHelpers {
