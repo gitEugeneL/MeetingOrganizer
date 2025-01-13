@@ -5,16 +5,16 @@ import com.euglihon.meetingorganizer.controller.ContactController;
 import com.euglihon.meetingorganizer.controller.EventController;
 import com.euglihon.meetingorganizer.data.DbContext;
 import com.euglihon.meetingorganizer.data.DbInitialization;
+import com.euglihon.meetingorganizer.repository.ICategoryRepository;
 import com.euglihon.meetingorganizer.repository.IContactRepository;
 import com.euglihon.meetingorganizer.repository.IEventRepository;
 import com.euglihon.meetingorganizer.repository.impl.CategoryRepository;
-import com.euglihon.meetingorganizer.repository.ICategoryRepository;
 import com.euglihon.meetingorganizer.repository.impl.ContactRepository;
 import com.euglihon.meetingorganizer.repository.impl.EventRepository;
+import com.euglihon.meetingorganizer.service.ICategoryService;
 import com.euglihon.meetingorganizer.service.IContactService;
 import com.euglihon.meetingorganizer.service.IEventService;
 import com.euglihon.meetingorganizer.service.impl.CategoryService;
-import com.euglihon.meetingorganizer.service.ICategoryService;
 import com.euglihon.meetingorganizer.service.impl.ContactService;
 import com.euglihon.meetingorganizer.service.impl.EventService;
 import javafx.application.Application;
@@ -24,7 +24,9 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 
 /**
@@ -37,17 +39,17 @@ public class App extends Application {
     private BorderPane root;
 
     // Database context
-    private final DbContext dbContext = new DbContext();
+    private static final DbContext dbContext = new DbContext();
 
     // Repositories
-    ICategoryRepository categoryRepository = new CategoryRepository(dbContext);
-    IContactRepository contactRepository = new ContactRepository(dbContext);
-    IEventRepository eventRepository = new EventRepository(dbContext);
+    private static final ICategoryRepository categoryRepository = new CategoryRepository(dbContext);
+    private static final IContactRepository contactRepository = new ContactRepository(dbContext);
+    private static final IEventRepository eventRepository = new EventRepository(dbContext);
 
     // Services
-    ICategoryService categoryService = new CategoryService(categoryRepository);
-    IContactService contactService = new ContactService(contactRepository);
-    IEventService eventService = new EventService(eventRepository);
+    private static final ICategoryService categoryService = new CategoryService(categoryRepository);
+    private static final IContactService contactService = new ContactService(contactRepository);
+    private static final IEventService eventService = new EventService(eventRepository);
 
     /**
      * Starts the application.
@@ -122,11 +124,33 @@ public class App extends Application {
             }
         });
 
+        MenuItem aboutMenuItem = new MenuItem("About");
+        aboutMenuItem.setOnAction(actionEvent -> {
+            try {
+                showAboutPage();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         // Add menu items to the menu and return the menu bar
-        menu.getItems().addAll(homeMenuItem, contactsMenuItem, categoryMenuItem);
+        menu.getItems().addAll(homeMenuItem, contactsMenuItem, categoryMenuItem, aboutMenuItem);
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(menu);
         return menuBar;
+    }
+
+    private void showAboutPage() throws IOException {
+        FXMLLoader loader = new FXMLLoader(App.class.getResource("about-modal-view.fxml"));
+        Scene scene = new Scene(loader.load());
+        Stage stage = new Stage();
+        stage.setTitle("About");
+        stage.initOwner(this.root.getScene().getWindow());
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setMinWidth(600);
+        stage.setMinHeight(300);
+        stage.setScene(scene);
+        stage.showAndWait();
     }
 
     /**
@@ -136,7 +160,7 @@ public class App extends Application {
      */
     private void showEventPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("event-view.fxml"));
-        EventController eventController = new EventController(this.eventService, this.categoryService, this.contactService);
+        EventController eventController = new EventController(eventService, categoryService, contactService);
         loader.setController(eventController);
         this.root.setCenter(loader.load());
     }
@@ -148,7 +172,7 @@ public class App extends Application {
      */
     private void showContactPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("contact-view.fxml"));
-        ContactController contactController = new ContactController(this.contactService, this.categoryService);
+        ContactController contactController = new ContactController(contactService, categoryService);
         loader.setController(contactController);
         this.root.setCenter(loader.load());
     }
@@ -160,7 +184,7 @@ public class App extends Application {
      */
     private void showCategoryPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("category-view.fxml"));
-        CategoryController categoryController = new CategoryController(this.categoryService);
+        CategoryController categoryController = new CategoryController(categoryService);
         loader.setController(categoryController);
         this.root.setCenter(loader.load());
     }
@@ -171,6 +195,12 @@ public class App extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        launch();
+        if (args.length > 0 && args[0].equals("text")) {
+            TextMode textMode = new TextMode(categoryService, contactService, eventService);
+            textMode.start();
+        } else {
+            launch();
+        }
     }
 }
+
