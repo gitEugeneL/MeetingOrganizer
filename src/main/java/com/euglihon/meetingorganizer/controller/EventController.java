@@ -15,14 +15,16 @@ import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class EventController {
 
+    private final LocalDate AUTO_DELETE_DATE = LocalDate.of(2020, 12, 31);
+
     private final IEventService eventService;
     private final ICategoryService categoryService;
     private final IContactService contactService;
-
     public EventController(IEventService eventService, ICategoryService categoryService, IContactService contactService) {
         this.eventService = eventService;
         this.categoryService = categoryService;
@@ -58,6 +60,7 @@ public class EventController {
 
     @FXML
     private void initialize() {
+        this.deleteByDate(AUTO_DELETE_DATE);
         this.loadAllCategories();
         this.loadAllEvents();
         this.refreshEventList(this.events);
@@ -207,8 +210,12 @@ public class EventController {
         if (!EventValidation.validateForm(this.deleteOlderEvenPicker, this.responseLabel)) {
             return;
         }
-        this.eventService.deleteEventOlderThan(this.deleteOlderEvenPicker.getValue());
+        this.deleteByDate(this.deleteOlderEvenPicker.getValue());
         this.finalizeEditing();
+    }
+
+    private void deleteByDate(LocalDate date) {
+        this.eventService.deleteEventOlderThan(date);
     }
 
     @FXML
