@@ -5,6 +5,7 @@ import com.euglihon.meetingorganizer.controller.ContactController;
 import com.euglihon.meetingorganizer.controller.EventController;
 import com.euglihon.meetingorganizer.data.DbContext;
 import com.euglihon.meetingorganizer.data.DbInitialization;
+import com.euglihon.meetingorganizer.data.Exporter;
 import com.euglihon.meetingorganizer.repository.ICategoryRepository;
 import com.euglihon.meetingorganizer.repository.IContactRepository;
 import com.euglihon.meetingorganizer.repository.IEventRepository;
@@ -24,9 +25,11 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -35,18 +38,18 @@ import java.io.IOException;
  */
 public class App extends Application {
 
-    // Root layout for the application
+    /** Root layout for the application */
     private BorderPane root;
 
-    // Database context
+    /** Database context */
     private static final DbContext dbContext = new DbContext();
 
-    // Repositories
+    /** Repositories */
     private static final ICategoryRepository categoryRepository = new CategoryRepository(dbContext);
     private static final IContactRepository contactRepository = new ContactRepository(dbContext);
     private static final IEventRepository eventRepository = new EventRepository(dbContext);
 
-    // Services
+    /** Services */
     private static final ICategoryService categoryService = new CategoryService(categoryRepository);
     private static final IContactService contactService = new ContactService(contactRepository);
     private static final IEventService eventService = new EventService(eventRepository);
@@ -124,6 +127,7 @@ public class App extends Application {
             }
         });
 
+        // About menu item with action to show the about page
         MenuItem aboutMenuItem = new MenuItem("About");
         aboutMenuItem.setOnAction(actionEvent -> {
             try {
@@ -133,13 +137,35 @@ public class App extends Application {
             }
         });
 
+        // Export menu item with action to export data to XML
+        MenuItem exportItem = new MenuItem("Export to XML");
+        exportItem.setOnAction(actionEvent -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Save XML File");
+
+            // Filter only xml files
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("XML Files", "*.xml")
+            );
+            File file = fileChooser.showSaveDialog(new Stage());
+            if (file != null) {
+                Exporter exporter = new Exporter(categoryService, contactService, eventService);
+                exporter.exportToXML(file.getAbsolutePath());
+            }
+        });
+
         // Add menu items to the menu and return the menu bar
-        menu.getItems().addAll(homeMenuItem, contactsMenuItem, categoryMenuItem, aboutMenuItem);
+        menu.getItems().addAll(homeMenuItem, contactsMenuItem, categoryMenuItem, aboutMenuItem, exportItem);
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(menu);
         return menuBar;
     }
 
+    /**
+     * Loads and displays the about page in a modal window.
+     *
+     * @throws IOException if an I/O error occurs while loading the FXML file
+     */
     private void showAboutPage() throws IOException {
         FXMLLoader loader = new FXMLLoader(App.class.getResource("about-modal-view.fxml"));
         Scene scene = new Scene(loader.load());
@@ -154,7 +180,7 @@ public class App extends Application {
     }
 
     /**
-     * Loads and displays the home page.
+     * Loads and displays the event page.
      *
      * @throws IOException if an I/O error occurs while loading the FXML file
      */
