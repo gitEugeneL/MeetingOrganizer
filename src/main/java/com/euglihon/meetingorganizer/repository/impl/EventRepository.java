@@ -15,16 +15,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+/**
+ * This class implements the IEventRepository interface.
+ * It provides methods for managing events in the database.
+ */
 public class EventRepository implements IEventRepository {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private final DbContext dbContext;
 
+    /**
+     * Constructor to initialize EventRepository with DbContext.
+     *
+     * @param dbContext The DbContext object for database interaction.
+     */
     public EventRepository(DbContext dbContext) {
         this.dbContext = dbContext;
     }
 
+    /**
+     * Creates the Events and Events_Contacts (MTM relation) tables if they do not already exist.
+     */
     @Override
     public void createTable() {
         dbContext.getConnection();
@@ -52,6 +64,11 @@ public class EventRepository implements IEventRepository {
         }
     }
 
+    /**
+     * Inserts a new event into the Events table.
+     *
+     * @param event The event object to be inserted.
+     */
     @Override
     public void insert(Event event) {
         dbContext.getConnection();
@@ -66,6 +83,12 @@ public class EventRepository implements IEventRepository {
         }
     }
 
+
+    /**
+     * Updates an existing event in the Events table.
+     *
+     * @param event The event object with updated information.
+     */
     @Override
     public void update(Event event) {
         dbContext.getConnection();
@@ -80,6 +103,12 @@ public class EventRepository implements IEventRepository {
         }
     }
 
+    /**
+     * Adds a contact to an event in the Events_Contacts table.
+     *
+     * @param eventId   The ID of the event.
+     * @param contactId The ID of the contact.
+     */
     @Override
     public void addContact(int eventId, int contactId) {
         dbContext.getConnection();
@@ -93,6 +122,12 @@ public class EventRepository implements IEventRepository {
         }
     }
 
+    /**
+     * Removes a contact from an event in the Events_Contacts table.
+     *
+     * @param eventId   The ID of the event.
+     * @param contactId The ID of the contact.
+     */
     @Override
     public void removeContact(int eventId, int contactId) {
         dbContext.getConnection();
@@ -106,6 +141,12 @@ public class EventRepository implements IEventRepository {
         }
     }
 
+    /**
+     * Checks if an event with the given ID exists in the Events table.
+     *
+     * @param event The event object to check.
+     * @return true if the event exists, false otherwise.
+     */
     @Override
     public boolean isEventExist(Event event) {
         dbContext.getConnection();
@@ -123,6 +164,12 @@ public class EventRepository implements IEventRepository {
         return exists;
     }
 
+    /**
+     * Get all events, optionally filtered by category ID.
+     *
+     * @param id The category ID to filter events by. Can be null to retrieve all events.
+     * @return A list of events.
+     */
     @Override
     public List<Event> findAll(Integer id) {
         dbContext.getConnection();
@@ -198,11 +245,22 @@ public class EventRepository implements IEventRepository {
         return events;
     }
 
+    /**
+     * Get all events for a specific category ID.
+     *
+     * @param categoryId The category ID to filter events by.
+     * @return A list of events in the given category.
+     */
     @Override
     public List<Event> findAllByCategoryId(int categoryId) {
         return this.findAll(categoryId);
     }
 
+    /**
+     * Deletes an event by its ID from the Events table.
+     *
+     * @param eventId The ID of the event to delete.
+     */
     @Override
     public void deleteById(int eventId) {
         dbContext.getConnection();
@@ -215,6 +273,11 @@ public class EventRepository implements IEventRepository {
         }
     }
 
+    /**
+     * Deletes all events older than the given date from the Events table.
+     *
+     * @param date The date to filter events by.
+     */
     @Override
     public void deleteOlderThan(LocalDate date) {
         dbContext.getConnection();

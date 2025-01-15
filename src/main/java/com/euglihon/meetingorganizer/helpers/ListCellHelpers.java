@@ -9,18 +9,40 @@ import javafx.scene.shape.Circle;
 
 import java.util.List;
 
+/**
+ * Helper class for creating custom ListCells.
+ * These cells are used to display information in ComboBoxes and Lists with customized graphics (like color circles).
+ */
 public class ListCellHelpers {
+
+    /**
+     * Sets an empty ListCell with no text or graphic.
+     *
+     * @param cell the ListCell to be set empty
+     */
     private static void setEmpty(ListCell<?> cell) {
         cell.setText(null);
         cell.setGraphic(null);
     }
 
+    /**
+     * Creates a Circle with a color and radius.
+     *
+     * @param colorCode the color code for the circle
+     * @param radius the radius of the circle
+     * @return a Circle with the specified color and radius
+     */
     private static Circle createColorCircle(String colorCode, double radius) {
         Circle circle = new Circle(radius);
         circle.setStyle("-fx-fill: " + colorCode + ";");
         return circle;
     }
 
+    /**
+     * Returns a ListCell for displaying a Category with its associated color as a circle.
+     *
+     * @return a ListCell that displays Category with its color circle
+     */
     public static ListCell<Category> categoryWithColorComboBox() {
         return new ListCell<>() {
             @Override
@@ -37,6 +59,12 @@ public class ListCellHelpers {
         };
     }
 
+    /**
+     * Returns a ListCell for displaying a Contact with its associated Category's color as a circle.
+     *
+     * @param categories the list of categories for finding the category of the contact
+     * @return a ListCell that displays Contact with its category's color circle
+     */
     public static ListCell<Contact> contactWithColorComboBox(List<Category> categories) {
         return new ListCell<>() {
             @Override
@@ -54,6 +82,12 @@ public class ListCellHelpers {
         };
     }
 
+    /**
+     * Returns a ListCell for displaying a Contact in a contact list with category color as a circle.
+     *
+     * @param categories the list of categories for finding the category of the contact
+     * @return a ListCell that displays Contact with its category's color circle
+     */
     public static ListCell<Contact> contactWithCategoryContactList(List<Category> categories) {
         return new ListCell<>() {
             @Override
@@ -71,6 +105,12 @@ public class ListCellHelpers {
         };
     }
 
+    /**
+     * Returns a ListCell for displaying an Event with its associated Category's color as a circle.
+     *
+     * @param categories the list of categories for finding the category of the event
+     * @return a ListCell that displays Event with its category's color circle
+     */
     public static ListCell<Event> eventWithCategoryContactList(List<Category> categories) {
         return new ListCell<>() {
             @Override
@@ -88,6 +128,11 @@ public class ListCellHelpers {
         };
     }
 
+    /**
+     * Returns a ListCell for displaying a Color with its color as a circle.
+     *
+     * @return a ListCell that displays Color with its circle
+     */
     public static ListCell<Color> colorNameWithColorCircle() {
         return new ListCell<>() {
             @Override

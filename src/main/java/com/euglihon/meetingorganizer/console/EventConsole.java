@@ -4,18 +4,31 @@ import com.euglihon.meetingorganizer.model.Contact;
 import com.euglihon.meetingorganizer.model.Event;
 import com.euglihon.meetingorganizer.service.IEventService;
 
-import javax.swing.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * EventConsole class responsible for interacting with the user
+ * to manage events in the console interface.
+ */
 public class EventConsole {
 
     private final IEventService eventService;
+
+    /**
+     * Constructs an EventConsole with the specified event service.
+     *
+     * @param eventService the service for managing events
+     */
     public EventConsole(IEventService eventService) {
         this.eventService = eventService;
     }
 
+    /**
+     * Displays all events with their IDs, titles, dates, category IDs, and participants.
+     * If no events are found, displays a message indicating so.
+     */
     public void showAllEvents() {
         List<Event> events = eventService.getAllEvents();
         if (events.isEmpty()) {
@@ -39,6 +52,10 @@ public class EventConsole {
         }
     }
 
+    /**
+     * Deletes an event based on the ID entered by the user.
+     * Prompts the user to input the ID of the event to delete.
+     */
     public void deleteEvent() {
         System.out.print("Enter event ID to delete: ");
         Scanner scanner = new Scanner(System.in);
@@ -46,6 +63,10 @@ public class EventConsole {
         eventService.deleteEventById(id);
     }
 
+    /**
+     * Creates a new event based on user input.
+     * Prompts the user to input the event title, date, and category ID.
+     */
     public void createEvent() {
         Scanner scanner = new Scanner(System.in);
 
@@ -66,6 +87,10 @@ public class EventConsole {
         this.eventService.addEvent(event);
     }
 
+    /**
+     * Includes a participant in an event.
+     * Prompts the user to input the event ID and the contact ID of the participant.
+     */
     public void includeParticipant() {
         Scanner scanner = new Scanner(System.in);
 
@@ -78,6 +103,10 @@ public class EventConsole {
         this.eventService.addContactToEvent(eventId, contactId);
     }
 
+    /**
+     * Excludes a participant from an event.
+     * Prompts the user to input the event ID and the contact ID of the participant.
+     */
     public void excludeParticipant() {
         Scanner scanner = new Scanner(System.in);
 

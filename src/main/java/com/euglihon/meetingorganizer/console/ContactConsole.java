@@ -6,13 +6,27 @@ import com.euglihon.meetingorganizer.service.IContactService;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * ContactConsole class responsible for interacting with the user
+ * to manage contacts in the console interface.
+ */
 public class ContactConsole {
 
     private final IContactService contactService;
+
+    /**
+     * Constructs a ContactConsole with the specified contact service.
+     *
+     * @param contactService the service for managing contacts
+     */
     public ContactConsole(IContactService contactService) {
         this.contactService = contactService;
     }
 
+    /**
+     * Displays all contacts with their IDs, first names, last names, phone numbers, and category IDs.
+     * If no contacts are found, displays a message indicating so.
+     */
     public void showAllContacts() {
         List<Contact> contacts = contactService.getAllContacts();
         if (contacts.isEmpty()) {
@@ -29,6 +43,10 @@ public class ContactConsole {
         }
     }
 
+    /**
+     * Deletes a contact based on the ID entered by the user.
+     * Prompts the user to input the ID of the contact to delete.
+     */
     public void deleteContact() {
         System.out.print("Enter contact ID to delete: ");
         Scanner scanner = new Scanner(System.in);
@@ -36,6 +54,10 @@ public class ContactConsole {
         contactService.deleteContactById(id);
     }
 
+    /**
+     * Creates a new contact based on user input.
+     * Prompts the user to input the first name, last name, phone number, and category ID.
+     */
     public void createContact() {
         Scanner scanner = new Scanner(System.in);
 

@@ -7,13 +7,27 @@ import com.euglihon.meetingorganizer.service.ICategoryService;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * CategoryConsole class responsible for interacting with the user
+ * to manage categories in the console interface.
+ */
 public class CategoryConsole {
 
     private final ICategoryService categoryService;
+
+    /**
+     * Constructs a CategoryConsole with the specified category service.
+     *
+     * @param categoryService the service for managing categories
+     */
     public CategoryConsole(ICategoryService categoryService) {
         this.categoryService = categoryService;
     }
 
+    /**
+     * Displays all categories with their IDs, names, and colors.
+     * If no categories are found, displays a message indicating so.
+     */
     public void showAllCategories() {
         List<Category> categories = this.categoryService.getAllCategories();
         if (categories.isEmpty()) {
@@ -28,6 +42,10 @@ public class CategoryConsole {
         }
     }
 
+    /**
+     * Deletes a category based on the ID entered by the user.
+     * Prompts the user to input the ID of the category to delete.
+     */
     public void deleteCategory() {
         System.out.print("Enter category ID to delete: ");
         Scanner scanner = new Scanner(System.in);
@@ -35,6 +53,10 @@ public class CategoryConsole {
         categoryService.deleteCategoryById(id);
     }
 
+    /**
+     * Creates a new category based on user input.
+     * Prompts the user to input the category name and choose a color.
+     */
     public void createCategory() {
         Scanner scanner = new Scanner(System.in);
 

@@ -25,6 +25,14 @@ public class EventController {
     private final IEventService eventService;
     private final ICategoryService categoryService;
     private final IContactService contactService;
+
+    /**
+     * Constructor to initialize services required for the EventController.
+     *
+     * @param eventService Service for managing events.
+     * @param categoryService Service for managing categories.
+     * @param contactService Service for managing contacts.
+     */
     public EventController(IEventService eventService, ICategoryService categoryService, IContactService contactService) {
         this.eventService = eventService;
         this.categoryService = categoryService;
@@ -58,6 +66,9 @@ public class EventController {
     @FXML
     private Label responseLabel;
 
+    /**
+     * Initializes the view by loading all categories and events, and setting up combo boxes.
+     */
     @FXML
     private void initialize() {
         this.deleteByDate(AUTO_DELETE_DATE);
@@ -69,11 +80,17 @@ public class EventController {
         this.clearFilterEvents();
     }
 
+    /**
+     * Handles event list form display and interaction logic.
+     */
     @FXML
     private void eventListForm() {
         this.createParticipantsContainer();
     }
 
+    /**
+     * Displays participant exclusion form for the selected event.
+     */
     @FXML
     void participantListForm() {
         Contact selectedEventContact = this.eventContactListView.getSelectionModel().getSelectedItem();
@@ -83,6 +100,9 @@ public class EventController {
         ViewHelpers.showContainer(this.excludeParticipantContainer);
     }
 
+    /**
+     * Filters events based on the selected category from the category combo box.
+     */
     @FXML
     private void filterEvents() {
         Category selectedCategory = this.categoryComboBox.getSelectionModel().getSelectedItem();
@@ -95,6 +115,9 @@ public class EventController {
         this.refreshEventList(this.events);
     }
 
+    /**
+     * Clears event filter and reloads all events.
+     */
     @FXML
     private void clearFilterEvents() {
         this.loadAllEvents();
@@ -102,6 +125,9 @@ public class EventController {
         this.refreshEventList(this.events);
     }
 
+    /**
+     * Creates and displays the add event container.
+     */
     @FXML
     private void createAddContainer() {
         ViewHelpers.disableContainer(this.participantsContainer);
@@ -109,6 +135,9 @@ public class EventController {
         ViewHelpers.showContainer(this.addContainer);
     }
 
+    /**
+     * Creates participants container for managing event participants.
+     */
     private void createParticipantsContainer() {
         Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
         if (selectedEvent == null) {
@@ -123,6 +152,9 @@ public class EventController {
         this.refreshParticipantList(this.eventContacts);
     }
 
+    /**
+     * Creates and displays the edit event container with pre-populated event data.
+     */
     @FXML
     private void createEditEventContainer() {
         Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
@@ -136,22 +168,35 @@ public class EventController {
         this.updateEventPicker.setValue(selectedEvent.getDate());
     }
 
+    /**
+     * Exits the add container and hides it from the view.
+     */
     @FXML
     private void exitAddContainer() {
         ViewHelpers.disableContainer(this.addContainer);
     }
 
+
+    /**
+     * Exits the participants container and hides it from the view.
+     */
     @FXML
     private void exitParticipantsContainer() {
         ViewHelpers.disableContainer(this.participantsContainer);
     }
 
+    /**
+     * Exits the edit container and hides it from the view.
+     */
     @FXML
     private void exitEditContainer() {
         ViewHelpers.disableContainer(this.editContainer);
         ViewHelpers.disableContainer(this.excludeParticipantContainer);
     }
 
+    /**
+     * Finalizes event editing by resetting the form and reloading events.
+     */
     private void finalizeEditing() {
         this.resetForm();
         this.exitAddContainer();
@@ -162,6 +207,9 @@ public class EventController {
         this.clearFilterEvents();
     }
 
+    /**
+     * Adds a new event by validating the input and calling the event service.
+     */
     @FXML
     private void addEvent() {
         if (!EventValidation.validateForm(this.titleTextField, this.createEventPicker,
@@ -176,6 +224,9 @@ public class EventController {
         this.finalizeEditing();
     }
 
+    /**
+     * Updates the selected event after validating the input form.
+     */
     @FXML
     private void updateEvent() {
         if (!EventValidation.validateForm(this.updateTitle, this.updateEventPicker, this.responseLabel)) {
@@ -195,6 +246,9 @@ public class EventController {
         }
     }
 
+    /**
+     * Deletes the selected event.
+     */
     @FXML
     private void deleteEvent() {
         Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
@@ -205,6 +259,9 @@ public class EventController {
         this.finalizeEditing();
     }
 
+    /**
+     * Deletes events that are older than the specified date.
+     */
     @FXML
     private void deleteOlderEvents() {
         if (!EventValidation.validateForm(this.deleteOlderEvenPicker, this.responseLabel)) {
@@ -214,10 +271,18 @@ public class EventController {
         this.finalizeEditing();
     }
 
+    /**
+     * Deletes events older than the given date.
+     *
+     * @param date The date used to filter events for deletion.
+     */
     private void deleteByDate(LocalDate date) {
         this.eventService.deleteEventOlderThan(date);
     }
 
+    /**
+     * Adds a new participant to the selected event.
+     */
     @FXML
     private void addNewParticipant() {
         Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
@@ -229,6 +294,9 @@ public class EventController {
         updateParticipantList(selectedEvent, contact);
     }
 
+    /**
+     * Excludes a participant from the selected event.
+     */
     @FXML
     private void excludeParticipant() {
         Event selectedEvent = this.eventListView.getSelectionModel().getSelectedItem();
@@ -240,6 +308,12 @@ public class EventController {
         updateParticipantList(selectedEvent, contact);
     }
 
+    /**
+     * Updates the participant list after adding or removing a participant.
+     *
+     * @param event The selected event.
+     * @param contact The participant being added or removed.
+     */
     private void updateParticipantList(Event event, Contact contact) {
         this.loadEventContacts(event.getId());
         this.loadContactsToAdd(event.getId(), contact.getCategoryId());
@@ -247,36 +321,71 @@ public class EventController {
         this.refreshParticipantList(this.eventContacts);
     }
 
+    /**
+     * Loads all categories from the category service.
+     */
     private void loadAllCategories() {
         this.categories = this.categoryService.getAllCategories();
     }
 
+    /**
+     * Loads all events from the event service.
+     */
     private void loadAllEvents() {
         this.events = this.eventService.getAllEvents();
     }
 
+    /**
+     * Loads all events that belong to the specified category.
+     *
+     * @param categoryId The ID of the category to filter events by.
+     */
     private void loadAllEventsByCategoryId(int categoryId) {
         this.events = this.eventService.getAllByCategoryId(categoryId);
     }
 
+    /**
+     * Loads all contacts associated with the specified event.
+     *
+     * @param eventId The ID of the event.
+     */
     private void loadEventContacts(int eventId) {
         this.eventContacts = this.contactService.getAllContactsByEventId(eventId);
     }
 
+    /**
+     * Loads all contacts available to add to the event, filtered by event and category.
+     *
+     * @param eventId The ID of the event.
+     * @param categoryId The ID of the category.
+     */
     private void loadContactsToAdd(int eventId, int categoryId) {
         this.contactsToAdd = this.contactService.getAvailableContactsToAddToEvent(eventId, categoryId);
     }
 
+    /**
+     * Refreshes the list of events displayed in the event list view.
+     *
+     * @param events The list of events to display.
+     */
     private void refreshEventList(List<Event> events) {
         this.eventListView.getItems().setAll(events);
         this.eventListView.setCellFactory(lv -> ListCellHelpers.eventWithCategoryContactList(this.categories));
     }
 
+    /**
+     * Refreshes the list of participants displayed in the participant list view.
+     *
+     * @param participants The list of participants to display.
+     */
     private void refreshParticipantList(List<Contact> participants) {
         this.eventContactListView.getItems().setAll(participants);
         this.eventContactListView.setCellFactory(lv -> ListCellHelpers.contactWithCategoryContactList(this.categories));
     }
 
+    /**
+     * Resets the input fields and response messages to their initial state.
+     */
     private void resetForm() {
         ViewHelpers.clearInputFields(this.updateTitle);
         ViewHelpers.clearInputFields(this.titleTextField);

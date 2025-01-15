@@ -12,15 +12,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+/**
+ * This class is an implementation of the ICategoryRepository interface.
+ * It provides methods for managing categories in the database.
+ */
 public final class CategoryRepository implements ICategoryRepository {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     private final DbContext dbContext;
+
+    /**
+     * Constructor that initializes the CategoryRepository with a DbContext.
+     *
+     * @param dbContext The database context for database operations.
+     */
     public CategoryRepository(DbContext dbContext) {
         this.dbContext = dbContext;
     }
 
+    /**
+     * Maps a ResultSet row to a Category object.
+     *
+     * @param resultSet The ResultSet to map from.
+     * @return A Category object.
+     * @throws SQLException If there is an error accessing the ResultSet.
+     */
     private Category mapToCategory(ResultSet resultSet) throws SQLException {
         return new Category(
                 resultSet.getInt("id"),
@@ -29,6 +46,9 @@ public final class CategoryRepository implements ICategoryRepository {
         );
     }
 
+    /**
+     * Creates the Categories table in the database if it does not exist.
+     */
     @Override
     public void createTable() {
         dbContext.getConnection();
@@ -45,6 +65,11 @@ public final class CategoryRepository implements ICategoryRepository {
         }
     }
 
+    /**
+     * Inserts a new category into the Categories table.
+     *
+     * @param category The category to insert.
+     */
     @Override
     public void insert(Category category) {
         dbContext.getConnection();
@@ -58,6 +83,11 @@ public final class CategoryRepository implements ICategoryRepository {
         }
     }
 
+    /**
+     * Deletes a category by its ID from the Categories table.
+     *
+     * @param categoryId The ID of the category to delete.
+     */
     @Override
     public void deleteById(int categoryId) {
         dbContext.getConnection();
@@ -70,23 +100,35 @@ public final class CategoryRepository implements ICategoryRepository {
         }
     }
 
+    /**
+     * Finds all categories in the Categories table.
+     *
+     * @return A list of all categories.
+     */
     @Override
     public List<Category> findAll() {
         dbContext.getConnection();
         String query = "SELECT id, name, color FROM Categories";
         List<Category> categories = new ArrayList<>();
-
         try (PreparedStatement statement = dbContext.getPreparedStatement(query)) {
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
+                // Map each result row to a Category and add to the list
                 categories.add(this.mapToCategory(resultSet));
             }
         } catch (SQLException ignored) {
             logger.severe("Failed to find all Categories");
         }
+        // Return the list of categories
         return categories;
     }
 
+    /**
+     * Finds a category by its name.
+     *
+     * @param name The name of the category to find.
+     * @return The found Category, or null if not found.
+     */
     @Override
     public Category findByName(String name) {
         dbContext.getConnection();
@@ -96,11 +138,13 @@ public final class CategoryRepository implements ICategoryRepository {
             statement.setString(1, name);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
+                // Map the result to a Category if found
                 category = this.mapToCategory(resultSet);
             }
         } catch (SQLException ignored) {
             logger.severe("Failed to find Category by name");
         }
+        // Return the found category or null if not found
         return category;
     }
 }

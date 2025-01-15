@@ -16,6 +16,9 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.util.logging.Logger;
 
+/**
+ * Exporter class responsible for exporting data to XML format.
+ */
 public class Exporter {
 
     private final Logger logger = Logger.getLogger(this.getClass().getName());
@@ -23,15 +26,29 @@ public class Exporter {
     private final ICategoryService categoryService;
     private final IContactService contactService;
     private final IEventService eventService;
+
+    /**
+     * Constructs an Exporter object with the specified services.
+     *
+     * @param categoryService the service for managing categories
+     * @param contactService the service for managing contacts
+     * @param eventService the service for managing events
+     */
     public Exporter(ICategoryService categoryService, IContactService contactService, IEventService eventService) {
         this.categoryService = categoryService;
         this.contactService = contactService;
         this.eventService = eventService;
     }
 
+    /**
+     * Exports the data to an XML file located at the specified path.
+     *
+     * @param filePath the path where the XML file will be saved
+     */
     public void exportToXML(String filePath) {
 
         try {
+            // Create a new DocumentBuilderFactory instance
             DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
             Document document = documentBuilder.newDocument();
@@ -62,7 +79,12 @@ public class Exporter {
         }
     }
 
-
+    /**
+     * Creates XML elements for categories and appends them to the root element.
+     *
+     * @param root the root XML element
+     * @param document the XML document
+     */
     private void createCategory(Element root, Document document) {
         Element categoriesElement = document.createElement("categories");
         root.appendChild(categoriesElement);
@@ -84,6 +106,12 @@ public class Exporter {
         }
     }
 
+    /**
+     * Creates XML elements for contacts and appends them to the root element.
+     *
+     * @param root the root XML element
+     * @param document the XML document
+     */
     private void createContact(Element root, Document document) {
         Element contactsElement = document.createElement("contacts");
         root.appendChild(contactsElement);
@@ -113,6 +141,13 @@ public class Exporter {
         }
     }
 
+    /**
+     * Creates XML elements for events and appends them to the root element.
+     * Also includes participants for each event.
+     *
+     * @param root the root XML element
+     * @param document the XML document
+     */
     private void createEvent(Element root, Document document) {
         Element eventsElement = document.createElement("events");
         root.appendChild(eventsElement);
